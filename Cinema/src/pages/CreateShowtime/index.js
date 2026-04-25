@@ -292,17 +292,24 @@ export default function MoviesManagement() {
     const handleDateChange = (date) => {
         setSelectedDate(date);
         if (date !== "Invalid Date") {
-            const obj = new Date(date);
+            let obj = new Date(date);
+            // setData((data) => ({
+            //     ...data,
+            //     ngayChieuGioChieu: `${obj.getDate().toString().padStart(2, 0)}/${(
+            //         obj.getMonth() + 1
+            //     )
+            //         .toString()
+            //         .padStart(2, 0)}/${obj.getFullYear()} ${obj
+            //             .getHours()
+            //             .toString()
+            //             .padStart(2, 0)}:${obj.getMinutes().toString().padStart(2, 0)}:00`,
+            // }));
+            const offset = obj.getTimezoneOffset() * 60000; // Độ lệch múi giờ sang milliseconds
+            obj = new Date(obj.getTime() - offset);
+            const formattedDate = obj.toISOString().slice(0, 16); // Cắt chuỗi để lấy định dạng 'yyyy-MM-ddTHH:mm'
             setData((data) => ({
                 ...data,
-                ngayChieuGioChieu: `${obj.getDate().toString().padStart(2, 0)}/${(
-                    obj.getMonth() + 1
-                )
-                    .toString()
-                    .padStart(2, 0)}/${obj.getFullYear()} ${obj
-                        .getHours()
-                        .toString()
-                        .padStart(2, 0)}:${obj.getMinutes().toString().padStart(2, 0)}:00`,
+                ngayChieuGioChieu: formattedDate,
             }));
         }
     };

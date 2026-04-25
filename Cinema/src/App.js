@@ -28,6 +28,9 @@ import Register from "./pages/Register";
 import Page404 from "./pages/Page404";
 import EditShowTime from "./pages/CreateShowtime/EditShowTime";
 import Invoice from "./pages/TicketManagement/invoice";
+import CumRap from "./pages/CumRap";
+import TinTuc from "./pages/TinTuc";
+import UngDung from "./pages/UngDung";
 function App() {
     return (
         <BrowserRouter>
@@ -35,7 +38,7 @@ function App() {
             <ModalTrailer />
             <Suspense fallback={<LazyLoad />}>
                 <Switch>
-                    <Route exact path={["/", "/detail/:maPhim", "/taikhoan"]}>
+                    <Route exact path={["/", "/detail/:maPhim", "/taikhoan", "/tin-tuc", "/ung-dung"]}>
                         <MainLayout>
                             <Route exact path="/" component={Homepage} />
                             <Route exact path="/detail/:maPhim" component={MovieDetail} />
@@ -44,8 +47,13 @@ function App() {
                                 path="/taikhoan"
                                 component={UserProfile}
                             />
+                            <Route exact path="/tin-tuc" component={TinTuc} />
+                            <Route exact path="/ung-dung" component={UngDung} />
                         </MainLayout>
                     </Route>
+
+                    {/* CumRap: full-screen page — no MainLayout wrapper */}
+                    <Route exact path="/cum-rap" component={CumRap} />
 
                     <CheckoutRoute
                         exact

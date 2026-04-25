@@ -170,8 +170,12 @@ export default function MoviesManagement() {
         }
 
         setOpenModal(false);
-        theatersApi.suaRap(movieObj);
+        console.log("movieObj", movieObj);
         window.location.reload();
+        theatersApi.suaRap({
+            maRap: selectedPhim.current.maRap,
+            tenRap: movieObj.tenRap,
+          });
         
     };
     const onAddMovie = (movieObj) => {
@@ -267,7 +271,7 @@ export default function MoviesManagement() {
             width: 200,
             renderCell: (params) => (
                 <Action
-                    onEdit={handleEdit}
+                    onEdit={()=>handleEdit(params.row)}
                     onDeleted={() => handleDeleteOne(params.row.maRap)}
                     phimItem={params.row.maRap}
                 />

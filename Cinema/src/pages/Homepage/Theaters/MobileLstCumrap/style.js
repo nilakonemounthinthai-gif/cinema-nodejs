@@ -9,13 +9,17 @@ const useStyles = makeStyles((theme) => ({
     overflow: "auto",
     maxHeight: 400,
     direction: "rtl",
+    backgroundColor: "#0d0d14",
+    '&::-webkit-scrollbar': { width: 5, backgroundColor: 'rgba(255,255,255,0.05)' },
+    '&::-webkit-scrollbar-thumb': { background: 'rgba(255,255,255,0.15)', borderRadius: 5 },
   },
 
   imgTheater: {
     width: 50,
     float: "left",
     display: "inline-block",
-    border: "1px solid #ebebec",
+    border: "1px solid rgba(255,255,255,0.1)",
+    borderRadius: 6,
   },
   wrapInfo: {
     paddingLeft: 3
@@ -25,7 +29,9 @@ const useStyles = makeStyles((theme) => ({
 
 const Accordion = withStyles({
   root: {
-    border: '1px solid rgba(0, 0, 0, .125)',
+    backgroundColor: "#12121d",
+    color: "#e0e0e0",
+    border: '1px solid rgba(255,255,255,0.07)',
     boxShadow: 'none',
     '&:not(:last-child)': {
       borderBottom: 0,
@@ -42,9 +48,14 @@ const Accordion = withStyles({
 
 const AccordionSummary = withStyles({
   root: {
-    borderBottom: '1px solid rgba(0, 0, 0, .125)',
+    backgroundColor: "#0d0d14",
+    borderBottom: '1px solid rgba(255,255,255,0.07)',
+    color: "#e0e0e0",
     marginBottom: -1,
     minHeight: 56,
+    '& .MuiSvgIcon-root': {
+      color: '#aaa',
+    },
     '&$expanded': {
       minHeight: 56,
     },
@@ -65,7 +76,8 @@ const AccordionSummary = withStyles({
 const AccordionDetails = withStyles((theme) => ({
   root: {
     padding: 0,
-    flexDirection: "column"
+    flexDirection: "column",
+    backgroundColor: "#12121d",
   },
 }))(MuiAccordionDetails);
 

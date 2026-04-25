@@ -48,7 +48,7 @@ export default function Index() {
         maLichChieu: thongTinPhim?.maLichChieu,
         taiKhoanNguoiDung: currentUser?.taiKhoan,
         email: currentUser?.email,
-        phone: currentUser?.soDT,
+        phone: currentUser?.soDt,  // FIX F3: was soDT (wrong case), field from backend is soDt
       },
     });
   }, [danhSachGhe, currentUser, timeOut]);

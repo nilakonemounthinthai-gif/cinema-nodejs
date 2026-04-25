@@ -42,22 +42,35 @@ module.exports = app;
 var dbConn = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: 'password',
-    database: 'nodeJsApi'
+    password: 'hqhhg',
+    database: 'nodejsapi',
+    charset: 'utf8mb4'
 });
-dbConn.connect();
+dbConn.connect((err) => {
+    if (err) { console.error('MySQL connect error:', err); return; }
+    // Force UTF-8 for the session so Vietnamese text is never garbled
+    dbConn.query("SET NAMES 'utf8mb4'");
+    dbConn.query("SET CHARACTER SET utf8mb4");
+});
 
-const validateToken = (req, res) => {
-    const tokenHeaderKey = process.env.TOKEN_HEADER_KEY;
+// FIX B4: validateToken converted to proper Express middleware so it actually
+// stops the request when the token is invalid.
+const validateToken = (req, res, next) => {
     const jwtSecretKey = process.env.JWT_SECRET_KEY;
     try {
-        const token = req.headers.authorization.split(" ")[1];
+        const authHeader = req.headers.authorization;
+        if (!authHeader) {
+            return res.status(401).json({ error: 'No authorization header' });
+        }
+        const token = authHeader.split(" ")[1];
         const verified = jwt.verify(token, jwtSecretKey);
-        if (!verified)
-            return res.status(401).send(error);
+        if (!verified) {
+            return res.status(401).json({ error: 'Invalid token' });
+        }
+        next();
     } catch (error) {
         console.log(error);
-        return res.status(401).send(error);
+        return res.status(401).json({ error: error.message });
     }
 }
 // VNPay
@@ -206,6 +219,50 @@ app.get('/api/QuanLyNguoiDung/LayDanhSachNguoiDung', function (req, res) {
     });
 });
 
+// FIX B1a: ThemNguoiDung - admin adds new user (same as DangKy but accessible from admin panel)
+app.post('/api/QuanLyNguoiDung/ThemNguoiDung', async (req, res) => {
+    const final = await new Promise((resolve, reject) => {
+        dbConn.query("INSERT INTO nguoidungvm SET ? ", {
+            taiKhoan: req.body.taiKhoan,
+            matKhau: md5(req.body.matKhau),
+            email: req.body.email,
+            soDt: req.body.soDt,
+            maNhom: req.body.maNhom || 'GP09',
+            maLoaiNguoiDung: req.body.maLoaiNguoiDung || 'KhachHang',
+            hoTen: req.body.hoTen,
+        }, function (error, results, fields) {
+            if (error) {
+                if (error.code === 'ER_DUP_ENTRY') {
+                    return resolve(res.status(400).send('Tài khoản đã tồn tại'));
+                }
+                throw error;
+            }
+            resolve(res.send("Success"));
+        });
+    });
+    return final;
+});
+
+// FIX B1b: LayDanhSachNguoiDungPhanTrang
+app.get('/api/QuanLyNguoiDung/LayDanhSachNguoiDungPhanTrang', function (req, res) {
+    const soTrang = parseInt(req.query.soTrang) || 1;
+    const soPhanTuTrenTrang = parseInt(req.query.soPhanTuTrenTrang) || 10;
+    const maNhom = req.query.MaNhom || 'GP09';
+    const offset = (soTrang - 1) * soPhanTuTrenTrang;
+    dbConn.query('SELECT COUNT(*) AS total FROM nguoidungvm WHERE maNhom=?', [maNhom], function (error, countResult) {
+        if (error) throw error;
+        const total = countResult[0].total;
+        dbConn.query(
+            'SELECT * FROM nguoidungvm WHERE maNhom=? LIMIT ? OFFSET ?',
+            [maNhom, soPhanTuTrenTrang, offset],
+            function (error, results) {
+                if (error) throw error;
+                return res.send({ totalCount: total, items: results, soTrang, soPhanTuTrenTrang });
+            }
+        );
+    });
+});
+
 app.get('/api/ThongKe/getMonth', function (req, res) {
     dbConn.query('SELECT MONTH(ngayMuaVe) AS thang, YEAR(ngayMuaVe) AS nam, SUM(amount) AS doanhSo FROM nodejsapi.thongke  GROUP BY YEAR(ngayMuaVe), MONTH(ngayMuaVe) ORDER BY nam, thang', [], function (error, results, fields) {
         if (error) throw error;
@@ -220,16 +277,14 @@ app.get('/api/ThongKe/getPhim', function (req, res) {
     });
 });
 
-app.post('/api/QuanLyNguoiDung/ThongTinTaiKhoan', function (req, res) {
-    validateToken(req, res);
+app.post('/api/QuanLyNguoiDung/ThongTinTaiKhoan', validateToken, function (req, res) {
     dbConn.query('SELECT * FROM nguoidungvm WHERE taiKhoan = ?', [req.body.taiKhoan], function (error, results, fields) {
         if (error) throw error;
         return res.send(results[0]);
     });
 });
 
-app.put('/api/QuanLyNguoiDung/CapNhatThongTinNguoiDung', function (req, res) {
-    validateToken(req, res);
+app.put('/api/QuanLyNguoiDung/CapNhatThongTinNguoiDung', validateToken, function (req, res) {
     if (req.body.matKhau) {
         dbConn.query('UPDATE nguoidungvm SET ? WHERE taiKhoan = ?', [{
             taiKhoan: req.body.taiKhoan,
@@ -241,7 +296,8 @@ app.put('/api/QuanLyNguoiDung/CapNhatThongTinNguoiDung', function (req, res) {
             hoTen: req.body.hoTen,
         }, req.body.taiKhoan], function (error, results, fields) {
             if (error) throw error;
-            return res.send(results[0]);
+            // FIX B5: UPDATE returns OkPacket, not array. Return "Success" string.
+            return res.send("Success");
         });
     }
     else {
@@ -254,7 +310,8 @@ app.put('/api/QuanLyNguoiDung/CapNhatThongTinNguoiDung', function (req, res) {
             hoTen: req.body.hoTen,
         }, req.body.taiKhoan], function (error, results, fields) {
             if (error) throw error;
-            return res.send(results[0]);
+            // FIX B5: same fix
+            return res.send("Success");
         });
     }
 });
@@ -270,13 +327,7 @@ app.delete('/api/QuanLyNguoiDung/XoaNguoiDung', function (req, res) {
 });
 
 // QuanLyRap
-
-app.get('/api/QuanLyRap/LayThongTinHeThongRap', function (req, res) {
-    dbConn.query('SELECT * FROM hethongrap', [], function (error, results, fields) {
-        if (error) throw error;
-        return res.send(results);
-    });
-});
+// FIX B6: Removed duplicate LayThongTinHeThongRap route (already defined above)
 
 app.get('/api/QuanLyRap/LayThongTinCumRap', function (req, res) {
     dbConn.query('SELECT * FROM cumrap', [], function (error, results, fields) {
@@ -293,7 +344,7 @@ app.get('/api/QuanLyRap/LayThongTinTheLoaiPhim', function (req, res) {
 });
 
 app.post('/api/QuanLyRap/AddTheLoaiPhim', function (req, res) {
-    dbConn.query("INSERT INTO nodejsapi.theloaiphim (name) VALUES(?)", [req.body.tenTheLoai], function (error, results, fields) {
+    dbConn.query("INSERT INTO nodejsapi.theloaiphim (tenTheLoai) VALUES(?)", [req.body.tenTheLoai], function (error, results, fields) {
         if (error) throw error;
         return res.send(results);
     });
@@ -350,7 +401,7 @@ app.get('/api/QuanLyRap/LayThongTinLichChieuHeThongRap', function (req, res) {
                                         "lstLichChieuTheoPhim": lstLichChieuTheoPhim,
                                         "maPhim": result1.maPhim,
                                         "tenPhim": result1.tenPhim,
-                                        "hinhAnh": result1.hinhAnh.toString()
+                                        "hinhAnh": result1.hinhAnh ? result1.hinhAnh.toString() : ''
 
                                     }
                                     console.log("PHIM", phim)
@@ -443,6 +494,10 @@ app.get('/api/QuanLyRap/LayThongTinLichChieuPhim', function (req, res) {
                     resolve(heThongRapChieu);
                 });
             })
+        }
+        // FIX B8: guard when movie has no showtimes yet
+        if (!results0[0]) {
+            return res.status(404).send({ error: 'Không tìm thấy phim hoặc phim chưa có lịch chiếu' });
         }
         const final = {
             "heThongRapChieu": heThongRapChieu,
@@ -546,9 +601,50 @@ app.get('/api/QuanLyPhim/LayDanhSachPhim', function (req, res) {
         if (error) throw error;
 
         for (var i = 0; i < results.length; i++) {
-            results[i].hinhAnh = Buffer.from(results[i].hinhAnh).toString()
+            results[i].hinhAnh = results[i].hinhAnh ? Buffer.from(results[i].hinhAnh).toString() : '';
         }
         return res.send(results);
+    });
+});
+
+// FIX B2: LayDanhSachPhimTheoNgay - filter by date range
+app.get('/api/QuanLyPhim/LayDanhSachPhimTheoNgay', function (req, res) {
+    const { tuNgay, denNgay } = req.query;
+    if (!tuNgay || !denNgay) {
+        return res.status(400).send('tuNgay and denNgay are required');
+    }
+    dbConn.query(
+        'SELECT * FROM phiminsert WHERE ngayKhoiChieu BETWEEN ? AND ?',
+        [tuNgay, denNgay],
+        function (error, results, fields) {
+            if (error) throw error;
+            for (var i = 0; i < results.length; i++) {
+                results[i].hinhAnh = results[i].hinhAnh ? Buffer.from(results[i].hinhAnh).toString() : '';
+            }
+            return res.send(results);
+        }
+    );
+});
+
+// FIX B3: LayDanhSachPhimPhanTrang - paginated movie list
+app.get('/api/QuanLyPhim/LayDanhSachPhimPhanTrang', function (req, res) {
+    const soTrang = parseInt(req.query.soTrang) || 1;
+    const soPhanTuTrenTrang = parseInt(req.query.soPhanTuTrenTrang) || 10;
+    const offset = (soTrang - 1) * soPhanTuTrenTrang;
+    dbConn.query('SELECT COUNT(*) AS total FROM phiminsert', [], function (error, countResult) {
+        if (error) throw error;
+        const total = countResult[0].total;
+        dbConn.query(
+            'SELECT * FROM phiminsert LIMIT ? OFFSET ?',
+            [soPhanTuTrenTrang, offset],
+            function (error, results, fields) {
+                if (error) throw error;
+                for (var i = 0; i < results.length; i++) {
+                    results[i].hinhAnh = results[i].hinhAnh ? Buffer.from(results[i].hinhAnh).toString() : '';
+                }
+                return res.send({ totalCount: total, items: results, soTrang, soPhanTuTrenTrang });
+            }
+        );
     });
 });
 
@@ -650,7 +746,7 @@ app.get('/api/QuanLyDatVe/LayDanhSachVeDaMuaCuaKhachHang', function (req, res) {
                 "giaVe": results[i].giaVe,
                 "tenTaiKhoan": results[i].taiKhoanNguoiDat,
                 "loaiGhe": results[i].giaVe > 75000 ? "Vip" : "Thường",
-                "isConfirm": results[i].isConfirm.readInt8() === 1
+                "isConfirm": results[i].isConfirm ? results[i].isConfirm.readInt8() === 1 : false // FIX B7
             });
             console.log(danhSachVe)
         }
@@ -681,7 +777,7 @@ app.get('/api/QuanLyDatVe/LayVeTheoMaGhe', function (req, res) {
                 "giaVe": results[i].giaVe,
                 "tenTaiKhoan": results[i].taiKhoanNguoiDat,
                 "loaiGhe": results[i].giaVe > 75000 ? "Vip" : "Thường",
-                "isConfirm": results[i].isConfirm.readInt8() === 1
+                "isConfirm": results[i].isConfirm ? results[i].isConfirm.readInt8() === 1 : false // FIX B7
             });
             console.log(danhSachVe)
         }
@@ -716,10 +812,10 @@ app.get('/api/QuanLyDatVe/LayDanhSachVeDaMua', function (req, res) {
                 "tenDayDu": results[i].tenDayDu,
                 "loaiGhe": results[i].loaiGhe,
                 "giaVe": results[i].giaVe,
-                "status": results[i].isConfirm?.readInt8() === 1,
+                "status": results[i].isConfirm ? results[i].isConfirm.readInt8() === 1 : false, // FIX B7
                 "taiKhoanNguoiDat": results[i].taiKhoanNguoiDat
             });
-            console.log("Status Ticket:", results[i].isConfirm.readInt8() === 1)
+            console.log("Status Ticket:", results[i].isConfirm ? results[i].isConfirm.readInt8() === 1 : false)
         }
         return res.send(danhSachVe);
     });
@@ -796,6 +892,7 @@ app.post('/api/QuanLyDatVe/DatVe', async (req, res) => {
                 maLichChieu: req.body.maLichChieu,
                 tenDayDu: ve.tenDayDu,
                 isConfirm: 0,
+                maRap: ve.maRap,  // FIX B9: persist maRap so seat lookups have it
             }, function (error, results, fields) {
                 if (error) throw error;
                 resolve();

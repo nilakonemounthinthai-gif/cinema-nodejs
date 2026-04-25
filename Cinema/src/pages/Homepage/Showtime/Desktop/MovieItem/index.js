@@ -1,15 +1,17 @@
-import React from 'react'
+import React, { useState } from 'react'
 
 import { Link, useHistory } from 'react-router-dom'
 
 import BtnPlay from '../../../../../components/BtnPlay';
 import useStyles from './styles';
 import useApiThoiLuongDanhGia from '../../../../../utilities/useApiThoiLuongDanhGia';
+import { DEFAULT_IMG } from '../../../../../constants/config';
 
 import './movie.css'
 
 function MovieItem({ movie, comingMovie }) {
-  const classes = useStyles({ bg: movie.hinhAnh, comingMovie });
+  const [imgSrc, setImgSrc] = useState(movie.hinhAnh || DEFAULT_IMG);
+  const classes = useStyles({ bg: imgSrc, comingMovie });
   const history = useHistory();
   const { thoiLuong } = useApiThoiLuongDanhGia(movie.maPhim)
   return (
@@ -17,6 +19,13 @@ function MovieItem({ movie, comingMovie }) {
       padding: '15px',
       cursor: 'pointer',
     }} >
+      {/* Hidden img used solely to detect broken image URL and trigger fallback */}
+      <img
+        src={imgSrc}
+        style={{ display: 'none' }}
+        alt=""
+        onError={() => setImgSrc(DEFAULT_IMG)}
+      />
       <div className="film">
         <div className="film__img">
           <div className={`film__poster ${classes.addbg}`}>

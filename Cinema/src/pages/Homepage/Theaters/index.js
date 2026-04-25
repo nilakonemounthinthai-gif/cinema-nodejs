@@ -9,7 +9,7 @@ import { useTheme } from "@material-ui/core/styles";
 import LstCumRap from "./LstCumRap";
 import useStyles from "./style";
 import { underLine } from "../../../styles/materialUi";
-import { colorTheater } from "../../../constants/theaterData";
+import { colorTheater, localLogoBySystem } from "../../../constants/theaterData";
 import MobileLstCumrap from "./MobileLstCumrap";
 
 export default function HeThongRap() {
@@ -25,7 +25,7 @@ export default function HeThongRap() {
     return <div>{errorTheaterList}</div>;
   }
   return (
-    <div id="cumrap">
+    <div id="cumrap" style={{ backgroundColor: "#0d0d14", padding: "40px 0" }}>
       <div className={`${classes.theater} calendar`}>
         <Tabs
           variant={isMobileTheater ? "scrollable" : "standard"}
@@ -45,9 +45,10 @@ export default function HeThongRap() {
               key={theater.maHeThongRap}
               label={
                 <img
-                  style={{ width: "50px", height: "50px" }}
-                  src={theater.logo}
-                  alt="theaterLogo"
+                  style={{ width: "50px", height: "50px", objectFit: "contain" }}
+                  src={localLogoBySystem[theater.maHeThongRap] || theater.logo}
+                  alt={theater.tenHeThongRap}
+                  onError={(e) => { e.target.onerror = null; e.target.src = localLogoBySystem[theater.maHeThongRap] || '/img/logo-theater/cgv.png'; }}
                 />
               }
             />

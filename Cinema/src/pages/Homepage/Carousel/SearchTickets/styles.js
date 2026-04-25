@@ -3,9 +3,9 @@ import { customScrollbar } from '../../../../styles/materialUi';
 const useStyle = makeStyles({
   search: {
     display: props => props.down992px ? "none" : 'flex',
-    maxWidth: "940px",
+    maxWidth: "1100px",
     margin: "auto",
-    height: "83px",
+    height: "60px",
     position: "absolute",
     bottom: "0",
     width: "100%",
@@ -13,7 +13,7 @@ const useStyle = makeStyles({
     transform: "translate(-50%,50%)",
     borderRadius: "5px",
     boxShadow: '0 0 10px rgb(0 0 0 / 30%)',
-
+    backgroundColor: '#ee823b',
     alignItems: "center",
   },
   itemFirst: {
@@ -40,6 +40,8 @@ const useStyle = makeStyles({
         padding: "18px 0px !important",
         paddingLeft: "20px !important",
         fontSize: 14,
+        color: 'white !important',
+        fontWeight: 'bold',
       },
       '&:before': {
         borderBottom: "none !important"
@@ -52,10 +54,11 @@ const useStyle = makeStyles({
       },
     },
     '& > label': {
-      color: "#000",
+      color: "white !important",
       fontSize: 14,
       top: -3,
       left: 20,
+      fontWeight: 'bold',
       display: props => props.openPhim ? "none" : "block"
     },
     '& > label.Mui-focused': {
@@ -66,7 +69,7 @@ const useStyle = makeStyles({
     '& > span': {
       marginTop: 0,
       '& > svg': {
-        color: "rgba(0, 0, 0, 0.3)",
+        color: "white !important",
         fontSize: "19px !important",
       },
     },
@@ -74,7 +77,7 @@ const useStyle = makeStyles({
   listbox: {
     ...customScrollbar,
     '& .MuiAutocomplete-option[aria-selected="true"]': {
-      backgroundColor: "rgb(238, 130, 59)85",
+      backgroundColor: "rgb(238, 130, 59)",
       color: "#fff",
     }
   },
@@ -88,7 +91,7 @@ const useStyle = makeStyles({
   },
 
   search__item: {
-    color: 'black',
+    color: 'white',
     padding: '1%',
     '& > div:before': {
       borderBottom: 'none',
@@ -97,15 +100,16 @@ const useStyle = makeStyles({
       borderBottom: 'none',
     },
     '& > div > div': {
-      color: 'black',
+      color: 'white',
       fontSize: 14,
       padding: '18px 0px',
+      fontWeight: 'bold',
       '&:focus': {
         backgroundColor: 'transparent'
       },
       '& ~ svg': {
         fontSize: 19,
-        color: 'rgba(0, 0, 0, 0.3)',
+        color: 'white !important',
         top: '33%',
       }
     },
@@ -151,33 +155,31 @@ const useStyle = makeStyles({
     },
   },
   'menu__item--selected': {
-    backgroundColor: "rgb(238, 130, 59)85 !important",
+    backgroundColor: "rgb(238, 130, 59) !important",
     color: "#fff",
-    '& li ~ li': {
-      color: '#fff',
-    }
   },
   // button
   btn: {
     backgroundColor: 'rgb(238, 130, 59)',
     margin: 'auto',
+    color: '#fff !important',
+    fontWeight: 'bold',
+    padding: "8px 23px",
     '&:hover': {
       backgroundColor: "#d01414",
     },
     '&:focus': {
       outline: "none",
     },
-    "&$btn": {
-      color: '#fff',
-      padding: "8px 23px",
-    }
   },
   btnDisabled: {
-    backgroundColor: "#4a4a4a",
+    backgroundColor: "#4a4a4a !important",
+    color: "#fff !important",
     border: "none",
     textTransform: "uppercase",
     borderRadius: "4px",
     padding: "8px 23px",
+    fontWeight: 'bold',
   }
 
 })

@@ -10,10 +10,10 @@ import { getMovieList } from "../../../reducers/actions/Movie";
 import { getTheaters } from "../../../reducers/actions/Theater";
 import "./style.css"
 const headMenu = [
-    { nameLink: "Lịch chiếu", id: "lichchieu" },
-    { nameLink: "Cụm rạp", id: "cumrap" },
-    { nameLink: "Tin tức", id: "tintuc" },
-    { nameLink: "Ứng dụng", id: "ungdung" },
+    { nameLink: "Lịch chiếu", type: "scroll", id: "lichchieu" },
+    { nameLink: "Cụm rạp",    type: "route",  path: "/cum-rap" },
+    { nameLink: "Tin tức",    type: "route",  path: "/tin-tuc" },
+    { nameLink: "Ứng dụng",  type: "route",  path: "/ung-dung" },
 ];
 
 export default function Header() {
@@ -68,17 +68,22 @@ export default function Header() {
             history.push("/", "");
         }, 50);
     };
-    const handleClickLink = (id) => {
+    const handleClickLink = (item) => {
         setOpenDrawer(false);
+        if (item.type === "route") {
+            history.push(item.path);
+            return;
+        }
+        // type === "scroll"
         if (location.pathname === "/") {
-            scroller.scrollTo(id, {
+            scroller.scrollTo(item.id, {
                 duration: 800,
                 smooth: "easeInOutQuart",
             });
         } else {
             dispatch({ type: LOADING_BACKTO_HOME });
             setTimeout(() => {
-                history.push("/", id);
+                history.push("/", item.id);
             }, 50);
         }
     };
@@ -110,9 +115,9 @@ export default function Header() {
                 >
                     {headMenu.map((link) => (
                         <span
-                            key={link.id}
+                            key={link.nameLink}
                             className=""
-                            onClick={() => handleClickLink(link.id)}
+                            onClick={() => handleClickLink(link)}
                         >
                             {link.nameLink}
                         </span>
@@ -122,7 +127,7 @@ export default function Header() {
                     {currentUser ? (
                         <ul className="flexAl">
                             <li onClick={handleUser} className="btn-up">
-                                <i className="fa fa-user"></i>Profiles
+                                <i className="fa fa-user"></i>Tài khoản
                             </li>
                             <li className="btn-up" onClick={handleLogout}>Đăng xuất</li>
                         </ul>

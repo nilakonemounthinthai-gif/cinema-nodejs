@@ -77,7 +77,8 @@ export default function SimpleTabs() {
       <div className="tab-bar">
       <AppBar className={classes.appBar} position="static">
         <Tabs classes={{ root: classes.tabBar, indicator: classes.indicator }} value={value.value} onChange={handleChange}>
-          <Tab disableRipple className={`${classes.tabButton} ${classes.tabDangChieu}`} label="showing MOVIES" />
+          <Tab disableRipple className={`${classes.tabButton} ${classes.tabDangChieu}`} label="Đang chiếu" />
+          <Tab disableRipple className={`${classes.tabButton} ${classes.tabSapChieu}`} label="Sắp chiếu" />
         </Tabs>
       </AppBar>
       </div>

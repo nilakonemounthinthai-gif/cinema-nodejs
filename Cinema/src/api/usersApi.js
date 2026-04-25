@@ -82,7 +82,7 @@ const usersApi = {
     },
 
     getPhim : () => {
-        const path = "ThongKe/getPhim";
+        const path = "/ThongKe/getPhim";  // FIX F5: was missing leading /
         return axiosClient.get(path);
     },
 

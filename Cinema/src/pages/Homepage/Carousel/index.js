@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
-import {URL_BANNER} from "../../../constants/config";
+import { useSelector } from "react-redux";
 import Slider from "react-slick";
 import ArrowBackIosRoundedIcon from "@material-ui/icons/ArrowBackIosRounded";
 import ArrowForwardIosRoundedIcon from "@material-ui/icons/ArrowForwardIosRounded";
@@ -12,18 +11,24 @@ import SearchStickets from "./SearchTickets";
 import useStyles from "./styles";
 import BtnPlay from "../../../components/BtnPlay";
 import { LOADING_BACKTO_HOME_COMPLETED } from "../../../reducers/constants/Lazy";
+import { DEFAULT_IMG } from "../../../constants/config";
 import "./carousel.css";
 
 export default function Carousel() {
+  // FIX F2: Use local movieList from Redux instead of external unreliable API.
+  // We pick the most-recent 8 movies (by ngayKhoiChieu) for the banner.
+  const { movieList } = useSelector((state) => state.movieReducer);
   const [listFilmBanner, setListFilmBanner] = useState([]);
-  const getFilmBanner = async () => {
-    try {
-      const res = await axios.get(URL_BANNER);
-      setListFilmBanner(res.data.content)
-    } catch (err) {
-      console.error(err);
+
+  useEffect(() => {
+    if (movieList && movieList.length > 0) {
+      const sorted = [...movieList]
+        .sort((a, b) => new Date(b.ngayKhoiChieu) - new Date(a.ngayKhoiChieu))
+        .slice(0, 8);
+      setListFilmBanner(sorted);
     }
-  };
+  }, [movieList]);
+
   const dispatch = useDispatch();
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
@@ -32,7 +37,7 @@ export default function Carousel() {
   const settings = {
     dots: true,
     infinite: true,
-    autoplaySpeed: 5000, //speed per sence
+    autoplaySpeed: 5000,
     autoplay: true,
     speed: 500,
     swipeToSlide: true,
@@ -43,7 +48,6 @@ export default function Carousel() {
 
   useEffect(() => {
     dispatch({ type: LOADING_BACKTO_HOME_COMPLETED });
-    getFilmBanner();
   }, []);
 
   function NextArrow(props) {
@@ -74,7 +78,12 @@ export default function Carousel() {
         {listFilmBanner.map((banner) => {
           return (
             <div key={banner.maPhim} className={classes.itemSlider}>
-              <img src={banner?.hinhAnh} alt="banner" className={classes.img} />
+              <img
+                src={banner?.hinhAnh || DEFAULT_IMG}
+                alt="banner"
+                className={classes.img}
+                onError={(e) => { e.target.onerror = null; e.target.src = DEFAULT_IMG; }}
+              />
               <div
                 className={classes.backgroundLinear}
                 onClick={() => history.push(`/detail/${banner.maPhim}`)}

@@ -9,24 +9,30 @@ const useStyles = makeStyles({
     overflowY: 'auto',
     height: 705,
     overflowX: 'hidden',
-    borderLeft: "1px solid #ebebec",
+    borderLeft: "none",
+    borderRight: "1px solid rgba(255,255,255,0.07)",
     borderBottom: 'none',
-    ...props.customScrollbar,
+    backgroundColor: "#0d0d14",
+    '&::-webkit-scrollbar': { width: 5, backgroundColor: 'rgba(255,255,255,0.05)' },
+    '&::-webkit-scrollbar-thumb': { background: 'rgba(255,255,255,0.15)', borderRadius: 5 },
   }),
 
-  cumRap: props => ({
+  cumRap: () => ({
     display: 'flex',
     cursor: "pointer",
-    padding: "20px 15px 15px 20px",
+    padding: "16px 15px 16px 16px",
     opacity: 0.5,
     transition: "all .2s",
+    borderBottom: "1px solid rgba(255,255,255,0.05)",
     '&:hover': {
       opacity: [[1], '!important'],
+      backgroundColor: 'rgba(255,255,255,0.04)',
     },
-    ...props.underLine
   }),
   cumRap__img: {
     width: 50, height: 50,
+    borderRadius: 6,
+    objectFit: 'cover',
   },
   cumRap__info: {
     paddingLeft: 10,
@@ -34,7 +40,7 @@ const useStyles = makeStyles({
   },
   cumRap__address: {
     fontSize: "12px",
-    color: "#949494",
+    color: "#666",
     overflow: "hidden",
     textOverflow: "ellipsis",
     whiteSpace: "nowrap"

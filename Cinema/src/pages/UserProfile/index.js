@@ -170,8 +170,8 @@ export default function Index() {
         /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
     const updateUserSchema = yup.object().shape({
         taiKhoan: yup.string().required("*Tài khoản không được bỏ trống !"),
-        matKhau: yup.string().required("*Mật khẩu không được bỏ trống !"),
-        email: yup
+        // FIX F4: password is optional – only validate when user actually enters something
+        matKhau: yup
             .string()
             .required("*Email không được bỏ trống !")
             .email("* Email không hợp lệ "),
@@ -186,7 +186,13 @@ export default function Index() {
         if (loadingUpdateUser) {
             return;
         }
-        dispatch(putUserUpdate(user));
+        // FIX F4: If the user left the password field blank, remove it so the
+        // backend branch that does NOT re-hash runs (preserving the existing password).
+        const payload = { ...user };
+        if (!payload.matKhau || payload.matKhau.trim() === "") {
+            delete payload.matKhau;
+        }
+        dispatch(putUserUpdate(payload));
     };
     const handleToggleHidePassword = () => {
         if (typePassword === "password") {
@@ -230,7 +236,9 @@ export default function Index() {
                         <Formik
                             initialValues={{
                                 taiKhoan: successInfoUser?.taiKhoan ?? "",
-                                matKhau: successInfoUser?.matKhau ?? "",
+                                // FIX F4: Don't pre-fill the md5 hash. Leave blank so user
+                                // only sets a new password if they type one.
+                                matKhau: "",
                                 email: successInfoUser?.email ?? "",
                                 soDt: successInfoUser?.soDt ?? "",
                                 maNhom: "GP09",

@@ -12,7 +12,6 @@ import useMediaQuery from "@material-ui/core/useMediaQuery";
 import TextField from "@material-ui/core/TextField";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import CustomPopper from "./popper";
-import "./style.css"
 import theatersApi from "../../../../api/theatersApi";
 import useStyles from "./styles";
 import formatDate from "../../../../utilities/formatDate";
@@ -261,7 +260,7 @@ export default function SearchStickets() {
                             return (
                                 <TextField
                                     {...params}
-                                    label="--Select a movie--"
+                                    label="Chọn phim"
                                     variant="standard"
                                     className={`${classes.textField}`}
                                 />
@@ -306,7 +305,7 @@ export default function SearchStickets() {
                         onOpen={handleOpenRap}
                         onChange={handleSelectRap}
                         value={data.setRap} // tenCumRap
-                        renderValue={(value) => `${value ? value : "--select a theater--"}`} // hiển thị giá trị đã chọn
+                        renderValue={(value) => `${value ? value : "Chọn rạp"}`} // hiển thị giá trị đã chọn
                         displayEmpty
                         IconComponent={ExpandMoreIcon}
                         MenuProps={menuProps}
@@ -350,7 +349,7 @@ export default function SearchStickets() {
                         onOpen={handleOpenNgayXem}
                         onChange={handleSelectNgayXem}
                         value={data.setNgayXem} // ngayChieu
-                        renderValue={(value) => `${value ? value : "--Select a date--"}`}
+                        renderValue={(value) => `${value ? value : "Chọn ngày"}`}
                         displayEmpty
                         IconComponent={ExpandMoreIcon}
                         MenuProps={menuProps}
@@ -390,7 +389,7 @@ export default function SearchStickets() {
                         onOpen={handleOpenSuatChieu}
                         onChange={handleSelectSuatChieu}
                         value={data.setSuatChieu} // suatChieu
-                        renderValue={(value) => `${value ? value : "--Select a showtime--"}`}
+                        renderValue={(value) => `${value ? value : "Chọn suất chiếu"}`}
                         displayEmpty
                         IconComponent={ExpandMoreIcon}
                         MenuProps={menuProps}
@@ -434,7 +433,7 @@ export default function SearchStickets() {
                             )
                         }
                     >
-                        <div style={{ textAlign: 'center' }}>BookTicket NOW</div>
+                        <div style={{ textAlign: 'center' }}>Đặt vé ngay</div>
                     </Button>
                 </FormControl>
             </div>

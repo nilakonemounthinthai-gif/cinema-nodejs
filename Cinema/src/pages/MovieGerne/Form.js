@@ -13,7 +13,7 @@ export default function FormInput({ selectedPhim, onUpdate, onAddMovie, listCine
   
     const handleSubmit = (movieObj) => {
       if (selectedPhim.tenTheLoai) {
-        // onUpdate(movieObj);
+        onUpdate(movieObj);
         console.log("Update")
         return;
       }
