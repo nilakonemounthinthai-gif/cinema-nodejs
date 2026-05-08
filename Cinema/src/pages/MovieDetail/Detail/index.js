@@ -18,7 +18,8 @@ export default function Desktop({ movieDetailShowtimes: data, isMobile }) {
   const param = useParams();
   const [quantityComment, setQuantityComment] = useState(0);
   const { thoiLuong, danhGia } = useApiThoiLuongDanhGia(param.maPhim);
-  const classes = useStyles({ bannerImg: data?.hinhAnh });
+  const resolvedImg = getImageUrl(data?.hinhAnh);
+  const classes = useStyles({ bannerImg: resolvedImg });
   const [imagePage404, setImagePage404] = useState(false);
   let location = useLocation();
 
@@ -42,71 +43,100 @@ export default function Desktop({ movieDetailShowtimes: data, isMobile }) {
 
   console.log(data,"data")
   return (
-    <div className="">
-      <div className="wrapperFlex">
-        <div className="flexCent">
-          <div className="items">
-            <img
-              src={getImageUrl(data?.hinhAnh)}
-              alt="poster"
-              onError={(e) => {
-                e.target.onerror = null;
-                setImagePage404(true);
-              }}
-            />
-            {imagePage404 && <div className={classes.withOutImage}></div>}
+    <div className={classes.pageWrapper}>
+      {/* ── Hero Banner ── */}
+      <div className={classes.heroBanner}>
+        {/* Blurred poster background */}
+        <div className={classes.heroBannerBg} />
+        {/* Dark overlay */}
+        <div className={classes.heroBannerOverlay} />
+        {/* Foreground: poster + info */}
+        <div className={classes.heroContent}>
+          {/* Poster */}
+          <div className={classes.posterWrapper}>
+            {imagePage404
+              ? <div className={classes.withOutImage} />
+              : <img
+                  className={classes.posterImg}
+                  src={resolvedImg}
+                  alt="poster"
+                  onError={() => setImagePage404(true)}
+                />
+            }
           </div>
-          <div className="items">
-            <div className="">
-              <div className="row">
-                <p  className={`col-lg-3`}>Ngày công chiếu</p>
-                <p  className={`col-lg-3`}>
-                  {formatDate(data.ngayKhoiChieu?.slice(0, 10)).YyMmDd}
-                </p>
-              </div>
-              <div className="row">
-                <p  className={`col-lg-3`}>Đạo diễn</p>
-                <p  className={`col-lg-3`}> {data?.daoDien} </p>
-              </div>
-              <div className="row">
-                <p  className={`col-lg-3`}>Diễn viên</p>
-                <p  className={`col-lg-3`}>
-                {data?.dienVien}
-                </p>
-              </div>
-              <div className="row">
-                <p  className={`col-lg-3`}>Thể Loại</p>
-                <p  className={`col-lg-3`}>{data?.maTheLoaiPhim}</p>
-              </div>
-              <div className="row">
-                <p  className={`col-lg-3`}>Định dạng</p>
-                <p  className={`col-lg-3`}>{data?.dinhDang}</p>
-              </div>
-              <div className="row">
-                <p  className={`col-lg-3`}>Quốc Gia SX</p>
-                <p  className={`col-lg-3`}>{data?.nhaSanXuat}</p>
-              </div>
+
+          {/* Info panel */}
+          <div className={classes.infoWrapper}>
+            {/* Movie title */}
+            <h1 className={classes.movieTitle}>
+              <span className={classes.c18}>C18</span>
+              {data?.tenPhim}
+            </h1>
+
+            {/* Rating + duration */}
+            <div className={classes.ratingRow}>
+              {danhGia && (
+                <>
+                  <Rating
+                    className={classes.rateStar}
+                    value={Number(danhGia) / 2}
+                    precision={0.5}
+                    size="small"
+                    readOnly
+                  />
+                  <span className={classes.ratingValue}>{danhGia}</span>
+                </>
+              )}
+              {thoiLuong && (
+                <span className={classes.duration}>{thoiLuong} phút</span>
+              )}
             </div>
-            <div className="row">
-              <div className="col-lg-3">
-                <p  className={``}>Nội dung</p>
-              </div>
-              <div className="col-lg-9">
-                <p>{data.moTa}</p>
-              </div>
+
+            {/* Info rows */}
+            <div className={classes.infoRow}>
+              <span className={classes.infoLabel}>Khởi chiếu</span>
+              <span className={classes.infoValue}>
+                {formatDate(data?.ngayKhoiChieu?.slice(0, 10)).YyMmDd}
+              </span>
             </div>
-            <div className={classes.shortInfo}>
-             
+            <div className={classes.infoRow}>
+              <span className={classes.infoLabel}>Đạo diễn</span>
+              <span className={classes.infoValue}>{data?.daoDien}</span>
+            </div>
+            <div className={classes.infoRow}>
+              <span className={classes.infoLabel}>Diễn viên</span>
+              <span className={classes.infoValue}>{data?.dienVien}</span>
+            </div>
+            <div className={classes.infoRow}>
+              <span className={classes.infoLabel}>Thể loại</span>
+              <span className={classes.infoValue}>{data?.maTheLoaiPhim}</span>
+            </div>
+            <div className={classes.infoRow}>
+              <span className={classes.infoLabel}>Định dạng</span>
+              <span className={classes.infoValue}>{data?.dinhDang}</span>
+            </div>
+            <div className={classes.infoRow}>
+              <span className={classes.infoLabel}>Quốc gia SX</span>
+              <span className={classes.infoValue}>{data?.nhaSanXuat}</span>
+            </div>
+            <div className={classes.infoRow}>
+              <span className={classes.infoLabel}>Nội dung</span>
+              <span className={`${classes.infoValue} ${classes.moTaText}`}>{data?.moTa}</span>
+            </div>
+
+            {/* Action buttons */}
+            <div className={classes.actionButtons}>
               <button className={classes.btnMuaVe} onClick={handleBtnMuaVe}>
                 {location.state?.comingMovie ? "Thông tin phim" : "Mua vé"}
               </button>
-              <button className={classes.btnMuaVe} onClick={() => openModal()}>
-                {location.state?.comingMovie ? "Thông tin phim" : "Xem demo"}
+              <button className={classes.btnTrailer} onClick={() => openModal()}>
+                {location.state?.comingMovie ? "Thông tin phim" : "Xem trailer"}
               </button>
             </div>
           </div>
         </div>
       </div>
+
       <Tap
         data={data}
         onClickBtnMuave={onClickBtnMuave}
@@ -116,3 +146,4 @@ export default function Desktop({ movieDetailShowtimes: data, isMobile }) {
     </div>
   );
 }
+

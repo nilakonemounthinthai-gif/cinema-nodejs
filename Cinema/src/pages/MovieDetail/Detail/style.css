@@ -1,23 +1,8 @@
-.flexCent{
-    display: flex;
-    align-items: center;
-    margin: 0 auto;
-    justify-content: space-between;
-    width: 70%;
-}
-.wrapperFlex{
-   display: flex;
-   align-items: center;
-   justify-content: center;
-   padding-top: 150px;
-}
-.flexCent .items{
-    margin: 0 40px;
-}
-.flexCent .items img{
-    width: 400px;
-}
+/* MovieDetail hero layout — main styles live in style.js (makeStyles).
+   Only responsive overrides that are difficult to express in JSS go here. */
 
-.flexCent p{
-    color: white !important;
+@media (max-width: 600px) {
+  .hero-action-buttons {
+    flex-direction: column;
+  }
 }
