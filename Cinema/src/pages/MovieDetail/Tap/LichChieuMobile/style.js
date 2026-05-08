@@ -7,8 +7,8 @@ import MuiAccordionDetails from '@material-ui/core/AccordionDetails';
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    backgroundColor: theme.palette.background.paper,
-    color: "#000",
+    backgroundColor: '#141414',
+    color: "#e9e9e9",
     width: "100%",
   },
   listDay: {
@@ -16,7 +16,7 @@ const useStyles = makeStyles((theme) => ({
     padding: "16px !important",
     paddingLeft: "0 !important",
     paddingRight: "0 !important",
-    backgroundColor: "#fff",
+    backgroundColor: "#252525",
     borderRadius: 10,
 
     display: "flex",
@@ -44,7 +44,7 @@ const useStyles = makeStyles((theme) => ({
 
 const Accordion = withStyles({
   root: {
-    border: '1px solid rgba(0, 0, 0, .125)',
+    border: '1px solid rgba(255, 255, 255, 0.1)',
     boxShadow: 'none',
     '&:not(:last-child)': {
       borderBottom: 0,
@@ -61,7 +61,7 @@ const Accordion = withStyles({
 
 const AccordionSummary = withStyles({
   root: {
-    borderBottom: '1px solid rgba(0, 0, 0, .125)',
+    borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
     marginBottom: -1,
     minHeight: 56,
     '&$expanded': {

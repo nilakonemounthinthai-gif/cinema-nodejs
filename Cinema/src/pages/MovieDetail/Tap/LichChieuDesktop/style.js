@@ -4,11 +4,11 @@ import { customScrollbar, underLine } from '../../../../styles/materialUi';
 const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
-    backgroundColor: theme.palette.background.paper,
+    backgroundColor: '#1a1a1a',
     display: 'flex',
     borderRadius: "10px",
     margin: '30px 100px',
-    color: "#000",
+    color: "#e9e9e9",
   },
   leftSection: {
     width: "28%",
@@ -26,6 +26,7 @@ const useStyles = makeStyles((theme) => ({
     textAlign: "left",
     fontSize: 12,
     opacity: .3,
+    color: "#e9e9e9",
     "&:hover": {
       opacity: 1,
     },
@@ -46,7 +47,7 @@ const useStyles = makeStyles((theme) => ({
     padding: "16px !important",
     paddingLeft: "0 !important",
     paddingRight: "0 !important",
-    backgroundColor: "#fff",
+    backgroundColor: "#252525",
     borderRadius: 10,
 
     display: "flex",

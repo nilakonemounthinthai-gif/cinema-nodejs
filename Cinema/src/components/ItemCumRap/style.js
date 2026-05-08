@@ -20,7 +20,7 @@ const useStyles = makeStyles({
     width: 50,
     float: "left",
     display: "inline-block",
-    border: "1px solid #ebebec",
+    border: "1px solid #333",
   },
   wrapInfo: {
     paddingLeft: 4
@@ -36,6 +36,7 @@ const useStyles = makeStyles({
 const Accordion = withStyles({
   root: {
     boxShadow: 'none',
+    backgroundColor: '#1f1f1f',
     '&:not(:last-child)': {
       borderBottom: 0,
     },
@@ -53,6 +54,7 @@ const AccordionSummary = withStyles({
   root: {
     marginBottom: -1,
     minHeight: 56,
+    borderBottom: '1px solid #333',
     '&$expanded': {
       minHeight: 56,
     },
@@ -76,6 +78,7 @@ const AccordionDetails = withStyles((theme) => ({
     gap: "10px",
     flexDirection: "row",
     flexWrap: "wrap",
+    backgroundColor: '#252525',
   },
 }))(MuiAccordionDetails);
 

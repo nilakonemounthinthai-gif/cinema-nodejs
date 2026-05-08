@@ -79,9 +79,9 @@ const useStyles = makeStyles(theme => ({
     width: "100%",
     height: "60px",
     borderRadius: "4px",
-    border: "1px solid #e8e8e9",
-    background: "#fff",
-    color: "#9b9b9b",
+    border: "1px solid #444",
+    background: "#2a2a2a",
+    color: "#ccc",
     fontSize: "14px",
     "&:focus": {
       outline: "none",
@@ -96,14 +96,14 @@ const useStyles = makeStyles(theme => ({
 
   itemDis: {
     padding: "20px 20px 12px",
-    border: "1px solid #e6e6e6",
+    border: "1px solid #333",
     borderBottom: "none",
     borderRadius: "3px",
-    backgroundColor: "#fff",
+    backgroundColor: "#1f1f1f",
     maxWidth: "580px",
     width: "100%",
     margin: "auto",
-    color: "#4a4a4a",
+    color: "#e9e9e9",
     marginBottom: 15,
   },
   infoUser: {
@@ -113,7 +113,7 @@ const useStyles = makeStyles(theme => ({
     display: "inline-block",
   },
   userName: {
-    color: "#000",
+    color: "#e9e9e9",
     fontWeight: 500,
     fontSize: 14,
     textTransform: "capitalize",
