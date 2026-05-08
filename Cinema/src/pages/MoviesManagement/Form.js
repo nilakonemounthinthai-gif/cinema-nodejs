@@ -16,7 +16,7 @@ import theatersApi from '../../api/theatersApi';
 export default function FormInput({ selectedPhim, onUpdate, onAddMovie }) {
     const classes = useStyles();
     const [srcImage, setSrcImage] = useState(selectedPhim?.hinhAnh)
-    const [base64Img, setBase64Img] = useState(selectedPhim?.hinhAnh)
+    const [imageFile, setImageFile] = useState(null)
     const [listTheater, setListTheater] = useState([]);
     const [roomData, setRoomData] = useState({
         maTheLoai: null,
@@ -34,14 +34,6 @@ export default function FormInput({ selectedPhim, onUpdate, onAddMovie }) {
         }));
       };
 
-    const setThumbnailPreviews = (e) => {
-        let file = e.target;
-        var reader = new FileReader();
-        reader.readAsDataURL(file.files[0]);
-        reader.onload = function () { // sau khi thực hiên xong lênh trên thì set giá trị có được
-            setSrcImage(reader.result)
-        };
-    }
 
     const movieSchema = yup.object().shape({
         tenPhim: yup.string().required("*Không được bỏ trống!"),
@@ -50,70 +42,86 @@ export default function FormInput({ selectedPhim, onUpdate, onAddMovie }) {
         dinhDang: yup.string().required("*Không được bỏ trống!"),
         quocGiaSX: yup.string().required("*Không được bỏ trống!"),
         trailer: yup.string().required("*Không được bỏ trống!").matches(/^(?:https?:\/\/)?(?:m\.|www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?$/, "*Sai link youtube"),
-        hinhAnh: yup.string().required("*Chưa chọn hình!"),
-        moTa: yup.string().required("*Không được bỏ trống!").min(100, "Mô tả cần 100 ký tự trở lên!"),
+        hinhAnh: yup.mixed().required("*Chưa chọn hình!"),
+        moTa: yup.string().required("*Không được bỏ trống!"),
         ngayKhoiChieu: yup.string().required("*Chưa chọn ngày!"),
         danhGia: yup.number().required("*Không được bỏ trống!").min(0, "*Điểm đánh giá phải từ 0 đến 10").integer("*Điểm đánh giá phải từ 0 đến 10").max(10, "*Điểm đánh giá phải từ 0 đến 10"),
     })
 
+    const buildFormData = (fields, file) => {
+        const fd = new FormData();
+        Object.entries(fields).forEach(([k, v]) => {
+            if (v !== undefined && v !== null) fd.append(k, v);
+        });
+        if (file) fd.append('hinhAnh', file);
+        return fd;
+    };
+
     const handleSubmit = (movieObj) => {
-        let hinhAnh = movieObj.hinhAnh
-        let fakeImage = { srcImage, maPhim: movieObj.maPhim }
-        var ngayKC = addHours(movieObj.ngayKhoiChieu, 7);
-        movieObj = { ...movieObj, ngayKhoiChieu: ngayKC }
-        movieObj.hinhAnh = base64Img;
-        
+        const origHinhAnh = movieObj.hinhAnh; // File object or string (existing URL)
+        const fakeImage = { srcImage, maPhim: movieObj.maPhim };
+        const ngayKC = addHours(movieObj.ngayKhoiChieu, 7);
+
         if (selectedPhim.maPhim) {
-            movieObj.maTheLoaPhim = roomData.maTheLoai;
-            onUpdate(movieObj, hinhAnh, fakeImage)
-            return
+            // EDIT MODE
+            if (imageFile) {
+                // New image selected — send as FormData
+                const fd = buildFormData({
+                    maPhim: movieObj.maPhim,
+                    tenPhim: movieObj.tenPhim,
+                    biDanh: movieObj.biDanh,
+                    trailer: movieObj.trailer,
+                    moTa: movieObj.moTa,
+                    maNhom: 'GP09',
+                    ngayKhoiChieu: ngayKC.toISOString(),
+                    danhGia: movieObj.danhGia ?? 0,
+                    quocGiaSX: movieObj.quocGiaSX,
+                    daoDien: movieObj.daoDien,
+                    dienVien: movieObj.dienVien,
+                    maTheLoaiPhim: roomData.maTheLoai || movieObj.maTheLoaiPhim,
+                    dinhDang: movieObj.dinhDang,
+                }, imageFile);
+                onUpdate(fd, null, fakeImage); // null → goes to updateMovieUpload path
+            } else {
+                // No new image — plain object, keep existing hinhAnh
+                movieObj.maTheLoaiPhim = roomData.maTheLoai || movieObj.maTheLoaiPhim;
+                movieObj.ngayKhoiChieu = ngayKC;
+                onUpdate(movieObj, typeof origHinhAnh === 'string' ? origHinhAnh : '', fakeImage);
+            }
+            return;
         }
-        const newMovieObj = { ...movieObj }
-        newMovieObj.maTheLoaiPhim = roomData.maTheLoai;
-        delete newMovieObj.maPhim
-        delete newMovieObj.biDanh
-        delete newMovieObj.danhGia
-        console.log(newMovieObj)
-        onAddMovie(newMovieObj)
-    }
+
+        // ADD MODE — always FormData
+        const biDanh = movieObj.tenPhim
+            .toLowerCase()
+            .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+            .replace(/\u0111/g, 'd').replace(/\u0110/g, 'd')
+            .replace(/[^a-z0-9\s-]/g, '')
+            .trim().replace(/\s+/g, '-');
+
+        const fd = buildFormData({
+            tenPhim: movieObj.tenPhim,
+            biDanh,
+            trailer: movieObj.trailer,
+            moTa: movieObj.moTa,
+            maNhom: 'GP09',
+            ngayKhoiChieu: ngayKC.toISOString(),
+            danhGia: movieObj.danhGia ?? 0,
+            quocGiaSX: movieObj.quocGiaSX,
+            daoDien: movieObj.daoDien,
+            dienVien: movieObj.dienVien,
+            maTheLoaiPhim: roomData.maTheLoai,
+            dinhDang: movieObj.dinhDang,
+        }, imageFile);
+        onAddMovie(fd);
+    };
 
     function addHours(date, hours) {
         date.setTime(date.getTime() + hours * 60 * 60 * 1000);
-
         return date;
     }
 
-    const getBase64 = (file) => {
-        return new Promise(resolve => {
-            let fileInfo;
-            let baseURL = "";
-            // Make new FileReader
-            let reader = new FileReader();
 
-            // Convert the file to base64 text
-            reader.readAsDataURL(file);
-
-            // on reader load somthing...
-            reader.onload = () => {
-                // Make a fileInfo Object
-                console.log("Called", reader);
-                baseURL = reader.result;
-                console.log(baseURL);
-                resolve(baseURL);
-            };
-            console.log(fileInfo);
-        });
-    };
-
-    const handleFileInputChange = (e) => {
-        getBase64(e.target.files[0])
-            .then(result => {
-                setBase64Img(result);
-            })
-            .catch(err => {
-                console.log(err);
-            });
-    };
 
     return (
         <Formik
@@ -126,11 +134,11 @@ export default function FormInput({ selectedPhim, onUpdate, onAddMovie }) {
                 daoDien: selectedPhim.daoDien,
                 dienVien: selectedPhim.dienVien,
                 dinhDang: selectedPhim.dinhDang,
-                quocGiaSX: selectedPhim.quocGiaSX,
+                quocGiaSX: selectedPhim.nhaSanXuat,
                 moTa: selectedPhim.moTa,
                 maNhom: 'GP09',
-                ngayKhoiChieu: selectedPhim?.ngayKhoiChieu ? new Date(selectedPhim.ngayKhoiChieu) : new Date(),
-                danhGia: selectedPhim.danhGia,
+                ngayKhoiChieu: selectedPhim?.ngayKhoiChieu ? new Date(selectedPhim.ngayKhoiChieu) : (() => { const d = new Date(); d.setHours(0,0,0,0); return d; })(),
+                danhGia: selectedPhim.danhGia ?? 0,
             }}
             validationSchema={movieSchema}
             onSubmit={handleSubmit}
@@ -154,10 +162,13 @@ export default function FormInput({ selectedPhim, onUpdate, onAddMovie }) {
                             {srcImage ? <img src={srcImage} id="image-selected" alt="movie" className="img-fluid rounded" /> : <ImageOutlinedIcon style={{ fontSize: 60 }} />}
                         </div>
                         <div className="col-10">
-                            <input type="file" name="hinhAnh" accept=".jpg,.png" className="form-control" onChange={(e) => {
-                                formikProp.setFieldValue("hinhAnh", e.currentTarget.files[0])
-                                setThumbnailPreviews(e)
-                                handleFileInputChange(e)
+                            <input type="file" name="hinhAnh" accept=".jpg,.jpeg,.png,.webp" className="form-control" onChange={(e) => {
+                                const file = e.currentTarget.files[0];
+                                if (file) {
+                                    formikProp.setFieldValue('hinhAnh', file);
+                                    setImageFile(file);
+                                    setSrcImage(URL.createObjectURL(file));
+                                }
                             }} />
                         </div>
                     </div>

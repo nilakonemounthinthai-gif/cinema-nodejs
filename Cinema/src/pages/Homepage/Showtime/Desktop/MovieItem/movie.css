@@ -142,4 +142,46 @@
 }
 .film .film__content .not_hide {
   opacity: 1 !important;
+}
+.film__badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 3;
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.5px;
+}
+.film__badge--coming {
+  background-color: #00b4d8;
+}
+.film__release-date {
+  font-size: 13px;
+  color: #00b4d8;
+  margin: 4px 0 0;
+  font-weight: 500;
+}
+/* External anchor tag button (e.g. Xem trailer) needs same hover reveal as Link */
+.film:hover .film__content .film__button .film__button-link {
+  opacity: 1;
+  transition: all 0.2s;
+}
+.film__button-link {
+  position: absolute;
+  top: 7px;
+  left: 0;
+  display: block;
+  width: 100%;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 20px;
+  padding: 10px;
+  text-align: center;
+  text-decoration: none;
+  font-weight: 600;
+  opacity: 0;
+  transition: all 0.2s;
 }/*# sourceMappingURL=movie.css.map */

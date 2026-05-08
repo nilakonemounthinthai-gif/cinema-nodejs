@@ -25,7 +25,6 @@ import {
 import Action from "./Action";
 import Form from "./Form";
 import theatersApi from "../../api/theatersApi";
-import { id } from "date-fns/locale";
 
 function CustomLoadingOverlay() {
   return (
@@ -34,7 +33,7 @@ function CustomLoadingOverlay() {
     </GridOverlay>
   );
 }
-export default function MoviesManagement() {
+export default function MovieGerne() {
   const [movieListDisplay, setMovieListDisplay] = useState([]);
   const classes = useStyles();
   const { enqueueSnackbar } = useSnackbar();
@@ -64,6 +63,7 @@ export default function MoviesManagement() {
   const selectedPhim = useRef(null);
   const isMobile = useMediaQuery("(max-width:768px)");
   const [listTheater, setListTheater] = useState([]);
+  const [loading, setLoading] = useState(true);
   useEffect(() => {
     if (
       !movieList2 ||
@@ -100,7 +100,8 @@ export default function MoviesManagement() {
   useEffect(() => {
     theatersApi.getThongTinCuaTheLoaiPhim().then((response) => {
       setListTheater(response.data);
-    });
+      setLoading(false);
+    }).catch(() => setLoading(false));
   }, []);
   useEffect(() => {
     if (movieList2) {
@@ -161,11 +162,14 @@ export default function MoviesManagement() {
       enqueueSnackbar(errorAddUploadMovie, { variant: "error" });
     }
   }, [successAddUploadMovie, errorAddUploadMovie]);
+
+  const fetchListTheater = () => {
+    theatersApi.getThongTinCuaTheLoaiPhim().then(response => setListTheater(response.data));
+  };
+
   const handleDeleteOne = (maCumRap) => {
     if (!loadingDeleteMovie) {
-      theatersApi.deleteTheLoaiPhim({ id: maCumRap });
-      // console.log("maCumRap", maCumRap);
-      window.location.reload();
+      theatersApi.deleteTheLoaiPhim({ id: maCumRap }).then(() => fetchListTheater());
     }
   };
   const handleEdit = (phim) => {
@@ -185,8 +189,7 @@ export default function MoviesManagement() {
       theatersApi.updateTheLoaiPhim({
         id: selectedPhim.current.id,
         tenTheLoai: movieObj.tenTheLoai,
-      });
-      window.location.reload();
+      }).then(() => fetchListTheater());
       return undefined;
   };
 
@@ -194,10 +197,9 @@ export default function MoviesManagement() {
       if (!loadingAddUploadMovie) {
         theatersApi.addTheLoaiPhim({
           tenTheLoai: movieObj.tenTheLoai
-        });
+        }).then(() => fetchListTheater());
       }
       setOpenModal(false);
-      window.location.reload();
   };
   const handleAddMovie = () => {
     const emtySelectedPhim = {
@@ -281,7 +283,7 @@ export default function MoviesManagement() {
   ];
   const modifySlugify = { lower: true, locale: "vi" };
   return (
-    <div style={{ height: "100vh", width: "100%", paddingBottom: "150px" }}>
+    <div style={{ height: "calc(100vh - 64px)", width: "100%", paddingBottom: "24px" }}>
       <div className={classes.control}>
         <div className="">
           <div className={`${classes.itemCtro}`}>
@@ -320,7 +322,7 @@ export default function MoviesManagement() {
         columns={columns}
         pageSize={25}
         rowsPerPageOptions={[10, 25, 50]}
-        loading={listTheater.length === 0} // Show loading overlay until data is fetched
+        loading={loading}
         components={{
           LoadingOverlay: CustomLoadingOverlay,
           Toolbar: GridToolbar,

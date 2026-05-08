@@ -34,9 +34,22 @@ export default function Desktop({ arrayData, value }) {
     nextArrow: <NextArrow />,
     prevArrow: <PrevArrow />
   };
+
+  // Show empty state when "Sắp chiếu" tab is active and list has loaded but is empty
+  if (value.value === 1 && arrayData.comingMovieList !== null && arrayData.comingMovieList.length === 0) {
+    return (
+      <div className={classes.container} style={{ textAlign: 'center', padding: '60px 0', color: '#aaa', fontSize: 18 }}>
+        Chưa có phim sắp chiếu
+      </div>
+    );
+  }
+
   return (
     <div className={classes.container}>
-      <Slider {...settings}>
+      {/* key={value.value} forces Slider to fully remount when switching tabs.
+          Without this, react-slick reuses its internal cloned slides, causing
+          stale images from the previous tab to appear in the new tab. */}
+      <Slider key={value.value} {...settings}>
         {value.value === 0 ?
           arrayData.dailyMovieList?.map((movie) => {
             return (

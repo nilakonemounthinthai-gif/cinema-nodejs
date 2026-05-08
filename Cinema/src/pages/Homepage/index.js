@@ -16,9 +16,8 @@ export default function Homepage() {
   const theaterList = useSelector((state) => state.theaterReducer.theaterList);
 
   useEffect(() => {
-    if (!movieList.length) {
-      dispatch(getMovieList());
-    }
+    // Always fetch fresh data on homepage mount so admin-added movies appear immediately
+    dispatch(getMovieList());
     if (!theaterList.length) {
       dispatch(getTheaters());
     }

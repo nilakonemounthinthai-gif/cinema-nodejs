@@ -71,7 +71,7 @@ export default function PayMent() {
         values: {
             email: email,
             phone: phone,
-            paymentMethod: paymentMethod,
+            paymentMethod: paymentMethod || "VNPAY",
         },
         errors: {
             email: "",
@@ -170,12 +170,27 @@ export default function PayMent() {
             console.log('Ma Lich Chieu:', maLichChieu);
             console.log('Tai Khoan: ', taiKhoanNguoiDung)
             console.log('Danh sach ve: ', danhSachVe)
-            dispatch(BookTicket({ maLichChieu, danhSachVe, taiKhoanNguoiDung , amount, tenPhim}));
+            dispatch(BookTicket({ maLichChieu, danhSachVe, taiKhoanNguoiDung , amount, tenPhim, paymentMethod: 'VNPAY' }));
         }
     }, [location.search, dispatch]);
 
     const handleBookTicket = () => {
-        console.log("Danh Sach Ve", danhSachVe)
+        console.log("Danh Sach Ve", danhSachVe);
+        const selectedPaymentMethod = dataSubmit.values.paymentMethod || "VNPAY";
+        dispatch({
+            type: SET_DATA_PAYMENT,
+            payload: {
+                email: dataSubmit.values.email,
+                phone: dataSubmit.values.phone,
+                paymentMethod: selectedPaymentMethod,
+            },
+        });
+
+        if (selectedPaymentMethod === "COUNTER") {
+            dispatch(BookTicket({ maLichChieu, danhSachVe, taiKhoanNguoiDung, amount, tenPhim: thongTinPhim?.tenPhim, paymentMethod: selectedPaymentMethod }));
+            return;
+        }
+
         usersApi.creatPaymentUrl(amount, maLichChieu, danhSachVe, taiKhoanNguoiDung).then(
             result => {
                 console.log(result.data)
@@ -196,7 +211,7 @@ export default function PayMent() {
         <aside className={classes.payMent}>
             <div>
                 <p className={`${classes.amount} ${classes.payMentItem}`}>
-                    {`${amount.toLocaleString("vi-VI")} đ`}
+                    {`${Number(amount).toLocaleString('vi-VN')} đ`}
                 </p>
                 <div className={classes.payMentItem}>
                     <p className={classes.tenPhim}>{thongTinPhim?.tenPhim}</p>
@@ -207,8 +222,22 @@ export default function PayMent() {
                 <div className={`${classes.seatInfo} ${classes.payMentItem}`}>
                     <span>{`Ghế ${listSeatSelected?.join(", ")}`}</span>
                     <p className={classes.amountLittle}>
-                        {`${amount.toLocaleString("vi-VI")} đ`}
+                        {`${Number(amount).toLocaleString('vi-VN')} đ`}
                     </p>
+                </div>
+
+                {/* payment method */}
+                <div className={classes.payMentItem}>
+                    <label className={classes.label}>Phương thức thanh toán</label>
+                    <select
+                        name="paymentMethod"
+                        className={classes.fillIn}
+                        value={dataSubmit.values.paymentMethod || "VNPAY"}
+                        onChange={onChange}
+                    >
+                        <option value="VNPAY">VNPay</option>
+                        <option value="COUNTER">Thanh toán tại quầy</option>
+                    </select>
                 </div>
 
                 {/* email */}
@@ -237,7 +266,7 @@ export default function PayMent() {
                         ref={phoneRef}
                         onFocus={onFocus}
                         onBlur={onBlur}
-                        value={currentUser?.soDt}
+                        value={dataSubmit.values.phone || ''}
                         className={classes.fillInPhone}
                         onChange={onChange}
                         autoComplete="off"

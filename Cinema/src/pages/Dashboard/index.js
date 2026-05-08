@@ -1,11 +1,24 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { BarChart } from '@mui/x-charts';
-import { LineChart } from '@mui/x-charts';
+import Typography from '@material-ui/core/Typography';
 import usersApi from '../../api/usersApi';
 
 export default function MoviesManagement() {
   const [phim, setPhim] = useState([]);
   const [revenue, setRevenue] = useState([]);
+  const containerRef = useRef(null);
+  const [chartWidth, setChartWidth] = useState(800);
+
+  useEffect(() => {
+    const updateWidth = () => {
+      if (containerRef.current) {
+        setChartWidth(containerRef.current.offsetWidth - 48);
+      }
+    };
+    updateWidth();
+    window.addEventListener('resize', updateWidth);
+    return () => window.removeEventListener('resize', updateWidth);
+  }, []);
 
   useEffect(() => {
     usersApi.getMonth()
@@ -30,8 +43,10 @@ export default function MoviesManagement() {
   }, []);
 
   return (
-    <div style={{ height: '100vh', width: '100%', paddingBottom: '150px' }}>
-      <h3>Thông kê theo từng tháng</h3>
+    <div ref={containerRef} style={{ width: '100%', paddingBottom: '32px' }}>
+      <Typography variant="h5" style={{ marginBottom: 16, fontWeight: 600, color: '#172b4d' }}>
+        Thống kê theo từng tháng
+      </Typography>
       {revenue.length > 0 ? (
         <BarChart
           xAxis={[
@@ -46,22 +61,22 @@ export default function MoviesManagement() {
               data: revenue.map(item => item.doanhSo),
             },
           ]}
-          width={1500}
-          height={350}
+          width={chartWidth}
+          height={320}
           margin={{ top: 20, right: 30, bottom: 50, left: 100 }}
         />
       ) : (
         <p>Loading...</p>
       )}
-      <br />
-      <h3>Thống kê phim xem nhiều nhất</h3>
+      <Typography variant="h5" style={{ marginBottom: 16, fontWeight: 600, color: '#172b4d' }}>
+        Thống kê phim xem nhiều nhất
+      </Typography>
       {phim.length > 0 ? (
-
         <BarChart
           xAxis={[
             {
               id: 'barCategories',
-              data:  phim.map(item => item.tenPhim),
+              data: phim.map(item => item.tenPhim),
               scaleType: 'band',
             },
           ]}
@@ -70,8 +85,8 @@ export default function MoviesManagement() {
               data: phim.map(item => item.soLuong),
             },
           ]}
-          width={1500}
-          height={350}
+          width={chartWidth}
+          height={320}
           margin={{ top: 20, right: 30, bottom: 50, left: 100 }}
         />
       ) : (

@@ -64,6 +64,7 @@ export default function MoviesManagement() {
   const selectedPhim = useRef(null);
   const isMobile = useMediaQuery("(max-width:768px)");
   const [listTheater, setListTheater] = useState([]);
+  const [loading, setLoading] = useState(true);
   useEffect(() => {
     if (
       !movieList2 ||
@@ -98,7 +99,8 @@ export default function MoviesManagement() {
   useEffect(() => {
     theatersApi.getThongTinCumRap().then((response) => {
       setListTheater(response.data);
-    });
+      setLoading(false);
+    }).catch(() => setLoading(false));
   }, []);
   useEffect(() => {
     if (movieList2) {
@@ -159,11 +161,15 @@ export default function MoviesManagement() {
       enqueueSnackbar(errorAddUploadMovie, { variant: "error" });
     }
   }, [successAddUploadMovie, errorAddUploadMovie]);
+
+  const fetchListTheater = () => {
+    theatersApi.getThongTinCumRap().then(response => setListTheater(response.data));
+  };
+
   const handleDeleteOne = (maCumRap) => {
     console.log(maCumRap);
     if (!loadingDeleteMovie) {
-      theatersApi.xoaCumRap({ maCumRap: maCumRap });
-      window.location.reload();
+      theatersApi.xoaCumRap({ maCumRap: maCumRap }).then(() => fetchListTheater());
     }
   };
   const handleEdit = (phim) => {
@@ -182,17 +188,15 @@ export default function MoviesManagement() {
       tenCumRap: movieObj.tenCumRap,
       diaChi: movieObj.diaChi,
       maHeThongRap: movieObj.maHeThongRap,
-    });
-    // window.location.reload();
+    }).then(() => fetchListTheater());
     return undefined;
   };
 
   const onAddMovie = (movieObj) => {
     if (!loadingAddUploadMovie) {
-      theatersApi.addThongTinCumRap(movieObj);
+      theatersApi.addThongTinCumRap(movieObj).then(() => fetchListTheater());
     }
     setOpenModal(false);
-    window.location.reload();
   };
   const handleAddMovie = () => {
     const emtySelectedPhim = {
@@ -285,7 +289,7 @@ export default function MoviesManagement() {
   ];
   const modifySlugify = { lower: true, locale: "vi" };
   return (
-    <div style={{ height: "100vh", width: "100%", paddingBottom: "150px" }}>
+    <div style={{ height: "calc(100vh - 64px)", width: "100%", paddingBottom: "24px" }}>
       <div className={classes.control}>
         <div className="">
           <div className={`${classes.itemCtro}`}>
@@ -324,7 +328,7 @@ export default function MoviesManagement() {
         columns={columns}
         pageSize={25}
         rowsPerPageOptions={[10, 25, 50]}
-        loading={listTheater.length === 0} // Show loading overlay until data is fetched
+        loading={loading}
         components={{
           LoadingOverlay: CustomLoadingOverlay,
           Toolbar: GridToolbar,

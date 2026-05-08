@@ -11,6 +11,7 @@ import useApiThoiLuongDanhGia from "../../../utilities/useApiThoiLuongDanhGia";
 import Tap from "../Tap";
 import { useDispatch } from 'react-redux';
 import { OPEN_MODAL } from '../../../reducers/constants/ModalTrailer';
+import { getImageUrl } from '../../../utilities/imageUrl';
 const play = '/img/carousel/play-video.png';
 export default function Desktop({ movieDetailShowtimes: data, isMobile }) {
   const [onClickBtnMuave, setOnClickBtnMuave] = useState(0);
@@ -46,7 +47,7 @@ export default function Desktop({ movieDetailShowtimes: data, isMobile }) {
         <div className="flexCent">
           <div className="items">
             <img
-              src={data.hinhAnh}
+              src={getImageUrl(data?.hinhAnh)}
               alt="poster"
               onError={(e) => {
                 e.target.onerror = null;

@@ -17,7 +17,7 @@ const usersApi = {
 
     getDanhSachNguoiDungPhanTrang: (soTrang, soPhanTuTrenTrang) => {
         const path = "/QuanLyNguoiDung/LayDanhSachNguoiDungPhanTrang?MaNhom=GP09";
-        return axiosClient.get(path, { soTrang, soPhanTuTrenTrang });
+        return axiosClient.get(path, { params: { soTrang, soPhanTuTrenTrang } });
     },
 
     postThemNguoiDung: (user) => {
@@ -66,7 +66,9 @@ const usersApi = {
         };
       
         danhSachVe.forEach((value, index) => {
-          params[`danhSachVe[${index}]`] = value;
+          // Must be JSON so backend can round-trip it through VNPay returnUrl
+          // and frontend can JSON.parse() after redirect.
+          params[`danhSachVe[${index}]`] = JSON.stringify(value);
         });
       
         return axiosClient.get(path, { params });

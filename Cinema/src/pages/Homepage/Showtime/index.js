@@ -9,7 +9,20 @@ import ArrowBackIosRoundedIcon from "@material-ui/icons/ArrowBackIosRounded";
 import ArrowForwardIosRoundedIcon from "@material-ui/icons/ArrowForwardIosRounded";
 import Desktop from './Desktop';
 import useStyles from './style';
-import { DATE_BEGIN_DANGCHIEU, DATE_END_DANGCHIEU, DATE_BEGIN_SAPCHIEU, DATE_END_SAPCHIEU } from '../../../constants/config';
+// Date ranges are computed dynamically inside the component to avoid stale
+// module-level constants that were evaluated only once at app load time.
+const filterByDay = (movieList, tuNgay, denNgay) => {
+  return movieList.filter(item => {
+    if (!item.ngayKhoiChieu) return false;
+    // Compare date-only strings (YYYY-MM-DD) so the time component in the stored
+    // datetime value never causes a movie to fall outside the expected range.
+    const d = new Date(item.ngayKhoiChieu);
+    if (isNaN(d.getTime())) return false;
+    const dateItem = d.toISOString().slice(0, 10);
+    return tuNgay <= dateItem && dateItem <= denNgay;
+  })
+}
+
 export function SampleNextArrow(props) {
   const classes = useStyles();
   const { onClick } = props;
@@ -23,17 +36,6 @@ export function SamplePrevArrow(props) {
   return (
     <ArrowBackIosRoundedIcon style={{ left: "-82px" }} onClick={onClick} className={classes.Arrow} />
   );
-}
-const filterByDay = (movieList, tuNgay, denNgay) => {
-  return movieList.filter(item => {
-    const timeItem = (new Date(item.ngayKhoiChieu)).getTime()
-    const timeTuNgay = (new Date(tuNgay)).getTime()
-    const timeDenNgay = (new Date(denNgay)).getTime()
-    if (timeTuNgay <= timeItem && timeItem <= timeDenNgay) {
-      return true
-    }
-    return false
-  })
 }
 
 export default function SimpleTabs() {
@@ -51,9 +53,19 @@ export default function SimpleTabs() {
   }, [])
 
   useEffect(() => {
-    let dailyMovieList = filterByDay(movieList, DATE_BEGIN_DANGCHIEU, DATE_END_DANGCHIEU)
+    // Compute date boundaries dynamically every time movieList changes.
+    // "Đang chiếu": released from 2024-01-01 up to and including today.
+    // "Sắp chiếu": release date is strictly AFTER today (no overlap).
+    const todayDate = new Date();
+    const today = todayDate.toISOString().slice(0, 10);
+    // Compute tomorrow so comingMovieList starts strictly after today,
+    // preventing a movie released exactly today from appearing in both tabs.
+    const tomorrowDate = new Date(todayDate);
+    tomorrowDate.setUTCDate(tomorrowDate.getUTCDate() + 1);
+    const tomorrow = tomorrowDate.toISOString().slice(0, 10);
+    let dailyMovieList = filterByDay(movieList, '2024-01-01', today)
     dailyMovieList = dailyMovieList?.slice(dailyMovieList.length - 16)
-    let comingMovieList = filterByDay(movieList, DATE_BEGIN_SAPCHIEU, DATE_END_SAPCHIEU,)
+    let comingMovieList = filterByDay(movieList, tomorrow, '2030-12-31')
     comingMovieList = comingMovieList?.slice(comingMovieList.length - 16)
     setarrayData({ dailyMovieList, comingMovieList })
   }, [movieList])
@@ -75,6 +87,7 @@ export default function SimpleTabs() {
       id="lichchieu"
     >
       <div className="tab-bar">
+
       <AppBar className={classes.appBar} position="static">
         <Tabs classes={{ root: classes.tabBar, indicator: classes.indicator }} value={value.value} onChange={handleChange}>
           <Tab disableRipple className={`${classes.tabButton} ${classes.tabDangChieu}`} label="Đang chiếu" />

@@ -27,15 +27,12 @@ function EditShowTime() {
         BookTicketApi.editLichChieuByMaLichChieu(maLichChieu, time, gia);
         setTimeout(() => {
             history.push("/admin/showtimes");
-            setTimeout(() => {
-                window.location.reload();
-            }, 500); // Optional delay before reloading the page (500 milliseconds in this example)
         }, 1000);
     };
 
     return (
         <>
-            <div style={{ height: "100vh", paddingBottom: "400px", width: "100%" }}>
+            <div style={{ height: "calc(100vh - 64px)", paddingBottom: "48px", width: "100%" }}>
                 <div style={{ marginTop: "40px", marginLeft: "40px", marginRight: "40px" }}>
                     <h2>Sửa lịch chiếu : {maLichChieu}</h2>
                     <form onSubmit={handleSubmit}>

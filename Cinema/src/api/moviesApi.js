@@ -10,11 +10,11 @@ const moviesApi = {
     },
     getDanhSachPhimTheoNgay: (maNhom, tuNgay, denNgay) => {
         const path = `/QuanLyPhim/LayDanhSachPhimTheoNgay`;
-        return axiosClient.get(path, { maNhom, tuNgay, denNgay });
+        return axiosClient.get(path, { params: { maNhom, tuNgay, denNgay } });
     },
     getDanhSachPhimPhanTrang: (param) => {
         const path = `/QuanLyPhim/LayDanhSachPhimPhanTrang`;
-        return axiosClient.get(path, { param });
+        return axiosClient.get(path, { params: param });
     },
 
     postThemPhim: (movie) => {

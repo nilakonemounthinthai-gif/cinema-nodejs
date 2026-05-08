@@ -12,8 +12,6 @@ export const deleteUser = (values) => {
                     type: DELETE_USER_SUCCESS,
                     payload: { data: result.data }
                 })
-
-                window.location.reload();
             }
             )
             .catch(

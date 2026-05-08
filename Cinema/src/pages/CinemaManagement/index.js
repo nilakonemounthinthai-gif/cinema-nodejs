@@ -152,11 +152,15 @@ export default function MoviesManagement() {
             enqueueSnackbar(errorAddUploadMovie, { variant: "error" });
         }
     }, [successAddUploadMovie, errorAddUploadMovie]);
+
+    const fetchListCinema = () => {
+        theatersApi.getListRap().then(response => setListCinema(response.data));
+    };
+
     const handleDeleteOne = (maPhim) => {
         if (!loadingDeleteMovie) {
             console.log(maPhim);
-            theatersApi.xoaRap({maRap : maPhim});
-            window.location.reload();
+            theatersApi.xoaRap({maRap : maPhim}).then(() => fetchListCinema());
         }
     };
     const handleEdit = (phimItem) => {
@@ -171,19 +175,16 @@ export default function MoviesManagement() {
 
         setOpenModal(false);
         console.log("movieObj", movieObj);
-        window.location.reload();
         theatersApi.suaRap({
             maRap: selectedPhim.current.maRap,
             tenRap: movieObj.tenRap,
-          });
-        
+          }).then(() => fetchListCinema());
     };
     const onAddMovie = (movieObj) => {
         if (!loadingAddUploadMovie) {
-            theatersApi.themRap(movieObj);
+            theatersApi.themRap(movieObj).then(() => fetchListCinema());
         }
         setOpenModal(false);
-        window.location.reload();
     };
     const handleAddMovie = () => {
         const emtySelectedPhim = {
@@ -282,7 +283,7 @@ export default function MoviesManagement() {
     ];
     const modifySlugify = { lower: true, locale: "vi" };
     return (
-        <div style={{ height: "100vh", width: "100%", paddingBottom: '150px' }}>
+        <div style={{ height: "calc(100vh - 64px)", width: "100%", paddingBottom: '24px' }}>
             <div className={classes.control}>
                 <div className="">
                     <div className={`${classes.itemCtro}`}>
@@ -319,7 +320,7 @@ export default function MoviesManagement() {
                 className={classes.rootDataGrid}
                 rows={listCinema}
                 columns={columns}
-                getRowId={(row) => row.did}
+                getRowId={(row) => row.maRap}
                 pageSize={25}
                 rowsPerPageOptions={[10, 25, 50]}
                 loading={

@@ -10,6 +10,17 @@ const useStyles = makeStyles(theme => ({
     alignItem: 'center',
     marginBottom: 30,
   },
+  // Permanent section heading above the tab selector row.
+  // Uses notDelay (the immediately-updated tab index) so it snaps to the new
+  // title without waiting for the 100 ms fade delay.
+  sectionHeading: {
+    fontSize: 28,
+    fontWeight: 700,
+    fontFamily: '"Arial", "Helvetica", "sans-serif"',
+    color: '#fa5238',
+    margin: '0 0 4px 0',
+    lineHeight: 1.2,
+  },
   tabBar: {
     alignItem: 'center',
     height: 50,
@@ -43,11 +54,11 @@ const useStyles = makeStyles(theme => ({
     }
   },
   tabDangChieu: {
-    color: props => props.notDelay ? "#000" : "#fa5238",
+    color: props => props.notDelay ? "#ffffff" : "#fa5238",
     fontSize: props => props.notDelay ? "20px" : "22px",
   },
   tabSapChieu: {
-    color: props => props.notDelay ? "#fa5238" : "#000",
+    color: props => props.notDelay ? "#fa5238" : "#ffffff",
     fontSize: props => props.notDelay ? "22px" : "20px",
   },
 

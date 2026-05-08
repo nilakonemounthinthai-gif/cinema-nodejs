@@ -57,7 +57,7 @@ export const deleteLichChieu = (maLichChieu) => {
     return (dispatch) => {
         theatersApi.deleteLichChieu(maLichChieu)
             .then(result => {
-                window.location.reload();
+                dispatch(getTheaters2());
             }
             )
             .catch(
