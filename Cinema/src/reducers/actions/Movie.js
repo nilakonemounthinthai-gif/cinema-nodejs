@@ -86,7 +86,8 @@ export const deleteMovie = (maPhim) => {
                     payload: { data: result.data },
                 });
 
-                window.location.reload();
+                dispatch(getMovieListManagement());
+                dispatch(getMovieList());
             })
             .catch((error) => {
                 const message = error?.response?.data
@@ -112,6 +113,7 @@ export const updateMovieUpload = (phimObj) => {
                     type: POST_UPDATE_MOVIE_SUCCESS,
                     payload: { data: result.data },
                 });
+                dispatch(getMovieList());
             })
             .catch((error) => {
                 dispatch({
@@ -135,6 +137,7 @@ export const updateMovie = (phimObj) => {
                     type: UPDATE_NONEIMAGE_MOVIE_SUCCESS,
                     payload: { data: result.data },
                 });
+                dispatch(getMovieList());
             })
             .catch((error) => {
                 dispatch({
@@ -157,8 +160,11 @@ export const addMovieUpload = (movieObj) => {
             .then((result) => {
                 dispatch({
                     type: ADD_MOVIE_UPLOAD_SUCCESS,
-                    payload: { data: result.data },
+                    // Backend returns plain 'Success'; enrich with tenPhim for the snackbar
+                    // movieObj may be a FormData instance, so use .get() when available
+                    payload: { data: { message: result.data, tenPhim: movieObj instanceof FormData ? movieObj.get('tenPhim') : movieObj.tenPhim } },
                 });
+                dispatch(getMovieList());
             })
             .catch((error) => {
                 dispatch({

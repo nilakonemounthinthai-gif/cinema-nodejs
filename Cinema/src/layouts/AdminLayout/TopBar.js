@@ -11,6 +11,7 @@ import {
 import MenuIcon from '@material-ui/icons/Menu';
 import NotificationsIcon from '@material-ui/icons/NotificationsOutlined';
 import InputIcon from '@material-ui/icons/Input';
+import ConfirmationNumberOutlinedIcon from '@material-ui/icons/ConfirmationNumberOutlined';
 import Tooltip from '@material-ui/core/Tooltip';
 import { useDispatch } from 'react-redux';
 import { useHistory } from "react-router-dom";
@@ -43,6 +44,11 @@ const TopBar = ({
         </div>
         <Box flexGrow={1} />
         <Hidden mdDown>
+          <Tooltip title="Lịch sử vé đã đặt">
+            <IconButton color="inherit" onClick={() => history.push('/admin/ticket-management')}>
+              <ConfirmationNumberOutlinedIcon />
+            </IconButton>
+          </Tooltip>
           <IconButton color="inherit">
             <Badge
               badgeContent={notifications.length}

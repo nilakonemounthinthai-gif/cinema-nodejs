@@ -4,11 +4,12 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 import { useSnackbar } from "notistack";
 import slugify from "slugify";
 
-import usersApi, { getDanhSachVeDaDat } from "../../api/usersApi";
+import usersApi from "../../api/usersApi";
 import { useHistory } from "react-router-dom";
 
-export default function MoviesManagement() {
+export default function TicketManagement() {
   const [datVeDaDat, setDatVeDaDat] = useState([]);
+  const [loading, setLoading] = useState(true);
   const history = useHistory()
   const { enqueueSnackbar } = useSnackbar();
 
@@ -21,10 +22,12 @@ export default function MoviesManagement() {
           id: index + 1, // Assigning a unique id to each row
         }));
         setDatVeDaDat(rows);
+        setLoading(false);
       })
       .catch((error) => {
         enqueueSnackbar("Failed to fetch data", { variant: "error" });
         console.error(error);
+        setLoading(false);
       });
   }, []);
 
@@ -189,13 +192,13 @@ export default function MoviesManagement() {
   ];
 
   return (
-    <div style={{ height: "100vh", paddingBottom: "400px", paddingTop: "50px", width: "100%" }}>
+    <div style={{ height: "calc(100vh - 64px)", paddingBottom: "48px", paddingTop: "16px", width: "100%" }}>
       <DataGrid
         rows={datVeDaDat}
         columns={columns}
         pageSize={25}
         rowsPerPageOptions={[10, 25, 50]}
-        loading={datVeDaDat.length === 0} // Show loading overlay until data is fetched
+        loading={loading}
         components={{
           LoadingOverlay: CustomLoadingOverlay,
           Toolbar: GridToolbar,

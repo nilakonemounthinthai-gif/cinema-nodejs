@@ -8,6 +8,8 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 import SearchIcon from "@material-ui/icons/Search";
 import InputBase from "@material-ui/core/InputBase";
 import Dialog from "@material-ui/core/Dialog";
+import DialogActions from "@material-ui/core/DialogActions";
+import DialogContentText from "@material-ui/core/DialogContentText";
 import AddBoxIcon from "@material-ui/icons/AddBox";
 import RenderCellExpand from "./RenderCellExpand";
 import slugify from "slugify";
@@ -36,6 +38,7 @@ function CustomLoadingOverlay() {
 
 export default function MoviesManagement() {
     const [movieListDisplay, setMovieListDisplay] = useState([]);
+    const [confirmDelete, setConfirmDelete] = useState({ open: false, maPhim: null, tenPhim: '' });
     const classes = useStyles();
     const { enqueueSnackbar } = useSnackbar();
     let {
@@ -145,9 +148,14 @@ export default function MoviesManagement() {
         }
     }, [successAddUploadMovie, errorAddUploadMovie]);
     const handleDeleteOne = (maPhim) => {
-        if (!loadingDeleteMovie) {
-            dispatch(deleteMovie(maPhim));
+        const found = movieListDisplay.find((m) => m.maPhim === maPhim);
+        setConfirmDelete({ open: true, maPhim, tenPhim: found?.tenPhim ?? '' });
+    };
+    const handleConfirmDelete = () => {
+        if (!loadingDeleteMovie && confirmDelete.maPhim) {
+            dispatch(deleteMovie(confirmDelete.maPhim));
         }
+        setConfirmDelete({ open: false, maPhim: null, tenPhim: '' });
     };
     const handleEdit = (phimItem) => {
         selectedPhim.current = phimItem;
@@ -282,7 +290,7 @@ export default function MoviesManagement() {
     ];
     const modifySlugify = { lower: true, locale: "vi" };
     return (
-        <div style={{ height: "100vh", width: "100%", paddingBottom: '150px' }}>
+        <div style={{ height: "calc(100vh - 64px)", width: "100%", paddingBottom: '24px' }}>
             <div className={classes.control}>
                 <div className="">
                     <div className={`${classes.itemCtro}`}>
@@ -346,6 +354,33 @@ export default function MoviesManagement() {
                         onAddMovie={onAddMovie}
                     />
                 </DialogContent>
+            </Dialog>
+            <Dialog open={confirmDelete.open} maxWidth="xs" fullWidth>
+                <DialogTitle onClose={() => setConfirmDelete({ open: false, maPhim: null, tenPhim: '' })}>
+                    Xác nhận xóa phim
+                </DialogTitle>
+                <DialogContent dividers>
+                    <DialogContentText style={{ color: '#172b4d', margin: 0 }}>
+                        Bạn có chắc muốn xóa phim <strong>{confirmDelete.tenPhim}</strong>?<br />
+                        Hành động này không thể hoàn tác.
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions style={{ padding: '12px 16px' }}>
+                    <Button
+                        onClick={() => setConfirmDelete({ open: false, maPhim: null, tenPhim: '' })}
+                        style={{ color: '#6b778c' }}
+                    >
+                        Hủy
+                    </Button>
+                    <Button
+                        onClick={handleConfirmDelete}
+                        variant="contained"
+                        style={{ backgroundColor: '#f50057', color: '#fff' }}
+                        disabled={loadingDeleteMovie}
+                    >
+                        Xóa
+                    </Button>
+                </DialogActions>
             </Dialog>
         </div>
     );

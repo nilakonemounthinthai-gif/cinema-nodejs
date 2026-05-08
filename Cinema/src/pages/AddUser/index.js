@@ -20,14 +20,7 @@ export default function AddUser() {
 
     useEffect(() => {
         if (responseRegister) {
-            // Swal.fire({
-            //   position: "center",
-            //   icon: "success",
-            //   title: "Bạn đã thêm user thành công",
-            //   showConfirmButton: false,
-            //   timer: 2000,
-            // });
-            window.location.reload(false);
+            history.push('/login');
         }
     }, [responseRegister]);
     useEffect(() => {

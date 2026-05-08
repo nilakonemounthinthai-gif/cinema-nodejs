@@ -13,7 +13,8 @@
   width: 700px;
 }
 
-.MuiBox-root {
+/* Scope dark background only to the sidebar drawer, not global */
+.MuiDrawer-paper .MuiBox-root {
   background-color: #001529;
 }
 
@@ -34,7 +35,9 @@
 }
 
 .content-admin {
-  background-color: white;
+  background-color: #f4f6f8;
+  padding: 24px;
+  box-sizing: border-box;
 }
 
 ul,
@@ -54,11 +57,12 @@ li {
   color: white !important;
 }
 
-.MuiTypography-colorTextPrimary {
+/* Scope white text overrides only to the dark sidebar drawer */
+.MuiDrawer-paper .MuiTypography-colorTextPrimary {
   color: white !important;
 }
 
-.MuiTypography-colorTextSecondary {
+.MuiDrawer-paper .MuiTypography-colorTextSecondary {
   color: white !important;
 }
 

@@ -12,6 +12,7 @@ import useStyles from "./styles";
 import BtnPlay from "../../../components/BtnPlay";
 import { LOADING_BACKTO_HOME_COMPLETED } from "../../../reducers/constants/Lazy";
 import { DEFAULT_IMG } from "../../../constants/config";
+import { getImageUrl } from "../../../utilities/imageUrl";
 import "./carousel.css";
 
 export default function Carousel() {
@@ -79,7 +80,7 @@ export default function Carousel() {
           return (
             <div key={banner.maPhim} className={classes.itemSlider}>
               <img
-                src={banner?.hinhAnh || DEFAULT_IMG}
+                src={getImageUrl(banner?.hinhAnh)}
                 alt="banner"
                 className={classes.img}
                 onError={(e) => { e.target.onerror = null; e.target.src = DEFAULT_IMG; }}

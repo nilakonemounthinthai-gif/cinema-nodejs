@@ -416,24 +416,14 @@ export default function UsersManagement() {
         if (loadingDelete) {
             return;
         }
-        let flag = false;
         usersApi.getDanhSachVeDaDat(taiKhoan).then((result) => {
-            setData(result.data);
-            console.log("VE", result.data);
-        });
-        data.forEach((d) => {
-            if (d.status === true) {
-              flag = true;
+            const canDelete = result.data.every((d) => d.status === true);
+            if (canDelete) {
+                dispatch(deleteUser(taiKhoan));
             } else {
-              flag = false;
+                alert("Tài khoản không thể xóa vì vé chưa được xác thực!!!");
             }
-          });
-        if (flag === true) {
-            dispatch(deleteUser(taiKhoan));
-        } else {
-            alert("Tài khoản không thể xóa vì vé chưa được xác thực!!!")
-        }
-
+        });
     };
     // xóa nhiều user
     const handleDeleteMultiple = () => {
@@ -633,12 +623,10 @@ export default function UsersManagement() {
     const onUpdate = (nguoiDungObj) => {
         setOpenModal(false);
         dispatch(putUserUpdate(nguoiDungObj));
-
-        window.location.reload();
     };
 
     return (
-        <div style={{ height: "100vh", width: "100%", paddingBottom: '100px' }}>
+        <div style={{ height: "calc(100vh - 64px)", width: "100%", paddingBottom: '24px' }}>
             <div className="container-fluid pb-3">
                 <div className="">
                     <div className="">

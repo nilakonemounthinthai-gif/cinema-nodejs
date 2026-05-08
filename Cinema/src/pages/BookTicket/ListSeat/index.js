@@ -6,14 +6,14 @@ import Countdown from "../Countdown";
 
 import useStyles from "./style";
 import { colorTheater, logoTheater } from "../../../constants/theaterData";
-import formatDate from "../../../utilities/formatDate";
 import {
     CHANGE_LISTSEAT,
     SET_ALERT_OVER10,
 } from "../../../reducers/constants/BookTicket";
 import TenCumRap from "../../../components/TenCumRap";
 import { FormControl, InputLabel, MenuItem, Select } from "@material-ui/core";
-import { format, parse, isValid } from 'date-fns';
+import { format, isValid } from 'date-fns';
+import { getImageUrl } from '../../../utilities/imageUrl';
 import { vi } from 'date-fns/locale';
 
 export default function ListSeat() {
@@ -25,8 +25,8 @@ export default function ListSeat() {
     const domToSeatElement = useRef(null);
     const [widthSeat, setWidthSeat] = useState(0);
     const classes = useStyles({
-        color: colorTheater[thongTinPhim?.tenCumRap.slice(0, 3).toUpperCase()],
-        modalLeftImg: thongTinPhim?.hinhAnh,
+        color: colorTheater[thongTinPhim?.tenCumRap?.slice(0, 3)?.toUpperCase()],
+        modalLeftImg: getImageUrl(thongTinPhim?.hinhAnh),
         isMobile,
         widthLabel: widthSeat / 2,
     });
@@ -76,7 +76,7 @@ export default function ListSeat() {
         }
         const danhSachVe = newListSeat?.reduce((danhSachVe, seat) => {
             if (seat.selected) {
-                return [...danhSachVe, { maGhe: seat.maGhe, tenDayDu: seat.label, giaVe: seat.giaVe }];
+                return [...danhSachVe, { maGhe: seat.maGhe, tenDayDu: seat.label, giaVe: seat.giaVe, maRap: seat.maRap }];
             }
             return danhSachVe;
         }, []);
@@ -118,15 +118,16 @@ export default function ListSeat() {
     };
 
     const ngayChieu = thongTinPhim?.gioChieu;
-    console.log(ngayChieu)
     let thu = '';
-    
+    let gioChieuFormatted = '';
+    let ngayChieuFormatted = '';
+
     if (ngayChieu) {
-      const parsedDate = parse(ngayChieu, 'dd/MM/yyyy HH:mm:ss', new Date());
-      console.log(parsedDate)
-    
+      const parsedDate = new Date(ngayChieu);
       if (isValid(parsedDate)) {
         thu = format(parsedDate, 'EEEE', { locale: vi });
+        gioChieuFormatted = format(parsedDate, 'HH:mm');
+        ngayChieuFormatted = format(parsedDate, 'dd/MM/yyyy');
       }
     }
 
@@ -136,14 +137,13 @@ export default function ListSeat() {
             <div className={classes.info_CountDown}>
                 <div className={classes.infoTheater}>
                     <img
-                        src={logoTheater[thongTinPhim?.tenCumRap.slice(0, 3).toUpperCase()]}
+                        src={logoTheater[thongTinPhim?.tenCumRap?.slice(0, 3)?.toUpperCase()]}
                         alt="phim"
                         style={{ width: 50, height: 50 }}
                     />
                     <div className={classes.text}>
                         <TenCumRap tenCumRap={thongTinPhim?.tenCumRap} />
-                        <p className={classes.textTime}>{`${thongTinPhim && thu
-                            } - ${thongTinPhim?.gioChieu} - ${thongTinPhim?.tenRap}`}</p>
+                        <p className={classes.textTime}>{`${thu}${thu ? ' - ' : ''}${gioChieuFormatted || ''}${ngayChieuFormatted ? ' - ' + ngayChieuFormatted : ''} - ${thongTinPhim?.tenRap}`}</p>
                     </div>
                 </div>
                 <div className={classes.countDown}>
@@ -167,8 +167,21 @@ export default function ListSeat() {
                             label="Age"
                             style={{ width: "900px", color: "white" }}
                         >
-                            <MenuItem value={0}>
-                                <em>---CHỌN---</em>
+                            <MenuItem
+                                value={0}
+                                style={{
+                                    borderRadius: "12px",
+                                    margin: "6px 8px",
+                                    padding: "14px 16px",
+                                    fontWeight: 700,
+                                    color: "#fff",
+                                    background: "linear-gradient(135deg, #ef4444, #b91c1c)",
+                                    boxShadow: "0 6px 18px rgba(239, 68, 68, 0.35)",
+                                    position: "relative",
+                                    overflow: "hidden",
+                                }}
+                            >
+                                🍿 CHỌN BỎNG & NƯỚC
                             </MenuItem>
                             <MenuItem value={30000}>Nước - 30.000 VNĐ</MenuItem>
                             <MenuItem value={50000}>Bỏng - 50.000 VNĐ</MenuItem>

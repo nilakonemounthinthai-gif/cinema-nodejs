@@ -4,18 +4,12 @@ import { useSelector, useDispatch } from "react-redux";
 import { makeStyles } from "@material-ui/core";
 import * as yup from "yup";
 import { ErrorMessage, Field, Form, Formik } from "formik";
-import AppBar from "@material-ui/core/AppBar";
-import Tabs from "@material-ui/core/Tabs";
-import Tab from "@material-ui/core/Tab";
 import Box from "@material-ui/core/Box";
 import PropTypes from "prop-types";
 import Swal from "sweetalert2";
-import CircularProgress from "@material-ui/core/CircularProgress";
 import useMediaQuery from "@material-ui/core/useMediaQuery";
 import { useTheme } from "@material-ui/core/styles";
-import NavigationIcon from "@material-ui/icons/Navigation";
-import Fab from "@material-ui/core/Fab";
-import { useHistory } from "react-router-dom";
+import Dialog from "@material-ui/core/Dialog";
 import "./style.css";
 import { FAKE_AVATAR } from "../../constants/config";
 import {
@@ -23,7 +17,27 @@ import {
     putUserUpdate,
     resetUserList,
 } from "../../reducers/actions/UsersManagement";
-import usersApi from "../../api/usersApi"
+import { BOOK_TICKET_RESET_SUCCESS } from "../../reducers/constants/BookTicket";
+import usersApi from "../../api/usersApi";
+import { getImageUrl } from "../../utilities/imageUrl";
+
+const formatShowtime = (val) => {
+    if (!val) return '';
+    const d = new Date(val);
+    if (isNaN(d.getTime())) return String(val);
+    const hh = String(d.getHours()).padStart(2, '0');
+    const mm = String(d.getMinutes()).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    const mo = String(d.getMonth() + 1).padStart(2, '0');
+    const yyyy = d.getFullYear();
+    return `${hh}:${mm} - ${dd}/${mo}/${yyyy}`;
+};
+
+const loaiGheLabel = (lg) => {
+    if (!lg) return '';
+    if (lg === 'Vip' || lg === 'VIP') return 'VIP';
+    return 'Thường';
+};
 
 const useStyles = makeStyles((theme) => ({
     appBar: {
@@ -93,18 +107,18 @@ TabPanel.propTypes = {
 };
 
 export default function Index() {
-    const history = useHistory();
     const theme = useTheme();
     const isDesktop = useMediaQuery(theme.breakpoints.up("md"));
     const classes = useStyles();
     const dispatch = useDispatch();
-    const { successInfoUser, loadingInfoUser } = useSelector(
+    const { successInfoUser } = useSelector(
         (state) => state.usersManagementReducer
     );
     const { currentUser } = useSelector((state) => state.authReducer);
+    const { bookingSuccess } = useSelector((state) => state.BookTicketReducer);
     console.log("User", currentUser?.soDt)
     const { commentList } = useSelector((state) => state.movieDetailReducer);
-    const [dataShort, setdataShort] = useState({
+    const [dataShort, setDataShort] = useState({
         ticket: 0,
         posts: 0,
         likePosts: 0,
@@ -114,22 +128,30 @@ export default function Index() {
     const { successUpdateUser, errorUpdateUser, loadingUpdateUser } = useSelector(
         (state) => state.usersManagementReducer
     );
-    const [value, setValue] = React.useState(0);
-    const [typePassword, settypePassword] = useState("password");
-
-    const handleChange = (event, newValue) => {
-        setValue(newValue);
-    };
+    const [typePassword, setTypePassword] = useState("password");
     useEffect(() => {
         dispatch(getInfoUser({ taiKhoan: currentUser?.taiKhoan }));
 
         usersApi.getDanhSachVeDaDat(currentUser?.taiKhoan).then((result) => {
             setDataVeDaDat(result.data);
-            console.log("VE",result.data);
+            console.log("VE", result.data);
         });
 
         return () => dispatch(resetUserList());
-    }, []);
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+    // Refetch tickets when bookingSuccess becomes true
+    useEffect(() => {
+        if (bookingSuccess) {
+            usersApi.getDanhSachVeDaDat(currentUser?.taiKhoan).then((result) => {
+                setDataVeDaDat(result.data);
+                console.log("VE updated after booking", result.data);
+            });
+            // Reset bookingSuccess flag
+            dispatch({ type: BOOK_TICKET_RESET_SUCCESS });
+        }
+    }, [bookingSuccess, currentUser?.taiKhoan, dispatch]);
+    
     useEffect(() => {
         if (commentList) {
             const { posts, likePosts } = commentList.reduce(
@@ -144,7 +166,7 @@ export default function Index() {
                 },
                 { posts: 0, likePosts: 0 }
             );
-            setdataShort((data) => ({ ...data, posts, likePosts }));
+            setDataShort((data) => ({ ...data, posts, likePosts }));
         }
         if (successInfoUser) {
             // const ticket = successInfoUser.thongTinDatVe.length;
@@ -153,7 +175,8 @@ export default function Index() {
             // }, 0);
             // setdataShort((data) => ({ ...data, ticket, total }));
         }
-    }, [commentList, successInfoUser]);
+    }, [commentList, successInfoUser]); // eslint-disable-line react-hooks/exhaustive-deps
+    
     useEffect(() => {
         if (successUpdateUser) {
             Swal.fire({
@@ -196,23 +219,18 @@ export default function Index() {
     };
     const handleToggleHidePassword = () => {
         if (typePassword === "password") {
-            settypePassword("text");
+            setTypePassword("text");
         } else {
-            settypePassword("password");
+            setTypePassword("password");
         }
     };
-    const getIdSeat = (danhSachGhe) => {
-        return danhSachGhe
-            .reduce((listSeat, seat) => {
-                return [...listSeat, seat.tenGhe];
-            }, [])
-            .join(", ");
-    };
+    const [selectedTicket, setSelectedTicket] = useState(null);
 
     const handleDeleteTicket = (maGhe, taiKhoanNguoiDat) => {
         console.log("delete")
-        usersApi.deleteTicketOfUser({maGhe : maGhe , taiKhoanNguoiDat: taiKhoanNguoiDat});
-        window.location.reload();
+        usersApi.deleteTicketOfUser({ maGhe: maGhe, taiKhoanNguoiDat: taiKhoanNguoiDat })
+            .then(() => usersApi.getDanhSachVeDaDat(currentUser?.taiKhoan)
+                .then(r => setDataVeDaDat(r.data)));
     }
     return (
         <div className="container rounded mb-5">
@@ -342,7 +360,7 @@ export default function Index() {
                                         <button
                                             type="submit"
                                             className="btn btn-success"
-                                            disable={loadingUpdateUser.toString()}
+                                            disabled={loadingUpdateUser}
                                         >
                                             Cập nhật
                                         </button>
@@ -391,43 +409,160 @@ export default function Index() {
                         </li>
                     </ul>
                 </div>
-                <div className="col-md-12">
-                    <table className="table">
-                        <thead>
-                            <th>Tên Phim</th>
-                            <th>Tên cụm rạp</th>
-                            <th>Tên rạp</th>
-                            <th>Địa chỉ</th>
-                            <th>Ngày chiếu</th>
-                            <th>Ghế</th>
-                            <th>Loại ghế</th>
-                            <th>Giá vé</th>
-                            <th style={{ width: "100px" }}>Trạng Thái</th>
-                        </thead>
-                        <tbody>
-                            {dataVeDaDat.map((item) => (
-                                <tr>
-                                    <td>{item.tenPhim}</td>
-                                    <td>{item.tenCumRap}</td>
-                                    <td>{item.tenRap}</td>
-                                    <td>{item.diaChi}</td>
-                                    <td>{item.ngayChieu}</td>
-                                    <td>{item.tenDayDu}</td>
-                                    <td>{item.loaiGhe}</td>
-                                    <td>{item.giaVe}</td>
-                                    <td>{item.status === true ? <><span style={{ color: "green" }}>Đã xử lý</span></> : <span style={{ color: "red" }}>Đang xử lý</span>}</td>
-                                    <td>{item.status === true ?
-                                        <>
-                                            <button type="button" class="btn btn-primary" disabled>Không thể xóa</button>
-                                        </>
-                                        :
-                                        <>
-                                            <button type="button" class="btn btn-danger" onClick={() => handleDeleteTicket(item.maGhe, item.taiKhoanNguoiDat)}>Xóa</button>
-                                        </>}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                <div className="col-md-12" style={{ marginTop: 24 }}>
+                    <h5 style={{ marginBottom: 16, fontWeight: 700 }}>Lịch sử đặt vé</h5>
+
+                    {/* Empty state */}
+                    {dataVeDaDat.length === 0 && (
+                        <div style={{ textAlign: 'center', padding: '40px 0', color: '#888' }}>
+                            <p style={{ fontSize: 18, marginBottom: 12 }}>Bạn chưa có vé nào. Hãy đặt vé ngay!</p>
+                            <a href="/" className="btn btn-danger">Về trang chủ</a>
+                        </div>
+                    )}
+
+                    {/* Ticket cards */}
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16 }}>
+                        {dataVeDaDat.map((item) => (
+                            <div
+                                key={item.maGhe}
+                                onClick={() => setSelectedTicket(item)}
+                                style={{
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    background: '#1a1a2e',
+                                    color: '#fff',
+                                    borderRadius: 12,
+                                    overflow: 'hidden',
+                                    width: 'calc(50% - 8px)',
+                                    minWidth: 300,
+                                    boxShadow: '0 2px 12px rgba(0,0,0,0.3)',
+                                    transition: 'transform 0.15s',
+                                }}
+                                onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.02)'}
+                                onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+                            >
+                                <img
+                                    src={getImageUrl(item.hinhAnh)}
+                                    alt={item.tenPhim}
+                                    style={{ width: 90, objectFit: 'cover', flexShrink: 0 }}
+                                    onError={e => { e.target.style.display = 'none'; }}
+                                />
+                                <div style={{ padding: '12px 14px', flex: 1, overflow: 'hidden' }}>
+                                    <p style={{ fontWeight: 700, fontSize: 15, margin: '0 0 4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                        {item.tenPhim}
+                                    </p>
+                                    <p style={{ fontSize: 12, color: '#aaa', margin: '0 0 2px' }}>{item.tenCumRap}</p>
+                                    <p style={{ fontSize: 12, color: '#aaa', margin: '0 0 6px' }}>{item.tenRap}</p>
+                                    <p style={{ fontSize: 12, margin: '0 0 4px' }}>🕐 {formatShowtime(item.gioChieu)}</p>
+                                    <p style={{ fontSize: 12, margin: '0 0 4px' }}>
+                                        💺 <strong>{item.tenDayDu}</strong>
+                                        <span style={{ marginLeft: 6, color: item.loaiGhe === 'Vip' ? '#f7b500' : '#aaa', fontSize: 11 }}>
+                                            ({loaiGheLabel(item.loaiGhe)})
+                                        </span>
+                                    </p>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 6 }}>
+                                        <span style={{ fontWeight: 700, color: '#e8572a' }}>{Number(item.giaVe).toLocaleString('vi-VN')} đ</span>
+                                        <span style={{
+                                            fontSize: 11,
+                                            padding: '2px 8px',
+                                            borderRadius: 20,
+                                            background: item.status ? '#22543d' : '#744210',
+                                            color: item.status ? '#68d391' : '#f6ad55',
+                                        }}>
+                                            {item.status ? 'Đã xác nhận' : 'Chờ xác nhận'}
+                                        </span>
+                                    </div>
+                                    {item.maDatVe && (
+                                        <p style={{ fontSize: 11, color: '#44c020', marginTop: 4, fontFamily: 'monospace' }}>
+                                            {item.maDatVe}
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Detail modal */}
+                    <Dialog
+                        open={!!selectedTicket}
+                        onClose={() => setSelectedTicket(null)}
+                        maxWidth="sm"
+                        fullWidth
+                        PaperProps={{ style: { background: '#1a1a2e', color: '#fff', borderRadius: 16 } }}
+                    >
+                        {selectedTicket && (
+                            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                {/* Header with poster */}
+                                <div style={{ display: 'flex', gap: 16, padding: '20px 20px 16px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+                                    <img
+                                        src={getImageUrl(selectedTicket.hinhAnh)}
+                                        alt={selectedTicket.tenPhim}
+                                        style={{ width: 110, borderRadius: 8, objectFit: 'cover' }}
+                                        onError={e => { e.target.style.display = 'none'; }}
+                                    />
+                                    <div>
+                                        <h5 style={{ fontWeight: 700, margin: '0 0 6px' }}>{selectedTicket.tenPhim}</h5>
+                                        <p style={{ color: '#aaa', fontSize: 13, margin: '0 0 3px' }}>{selectedTicket.tenCumRap}</p>
+                                        <p style={{ color: '#aaa', fontSize: 13, margin: '0 0 3px' }}>{selectedTicket.tenRap}</p>
+                                        <p style={{ color: '#888', fontSize: 12, margin: 0 }}>{selectedTicket.diaChi}</p>
+                                    </div>
+                                </div>
+
+                                {/* Detail body */}
+                                <div style={{ padding: '16px 20px' }}>
+                                    <table style={{ width: '100%', fontSize: 14, borderCollapse: 'collapse' }}>
+                                        <tbody>
+                                            <tr><td style={{ color: '#aaa', padding: '5px 0', width: 130 }}>Suất chiếu:</td><td>{formatShowtime(selectedTicket.gioChieu)}</td></tr>
+                                            <tr><td style={{ color: '#aaa', padding: '5px 0' }}>Ghế:</td><td><strong>{selectedTicket.tenDayDu}</strong> ({loaiGheLabel(selectedTicket.loaiGhe)})</td></tr>
+                                            <tr><td style={{ color: '#aaa', padding: '5px 0' }}>Giá vé:</td><td style={{ fontWeight: 700, color: '#e8572a' }}>{Number(selectedTicket.giaVe).toLocaleString('vi-VN')} đ</td></tr>
+                                            <tr><td style={{ color: '#aaa', padding: '5px 0' }}>Trạng thái:</td><td>
+                                                <span style={{ color: selectedTicket.status ? '#68d391' : '#f6ad55', fontWeight: 600 }}>
+                                                    {selectedTicket.status ? 'Đã xác nhận' : 'Chờ xác nhận'}
+                                                </span>
+                                            </td></tr>
+                                        </tbody>
+                                    </table>
+
+                                    {/* Booking code block */}
+                                    {selectedTicket.maDatVe && (
+                                        <div style={{ marginTop: 16, padding: 14, background: 'rgba(255,255,255,0.05)', borderRadius: 10, textAlign: 'center' }}>
+                                            <p style={{ color: '#aaa', fontSize: 12, margin: '0 0 6px' }}>Mã đặt vé</p>
+                                            <p style={{ color: '#44c020', fontSize: 24, fontWeight: 700, letterSpacing: 3, fontFamily: 'monospace', margin: '0 0 8px' }}>
+                                                {selectedTicket.maDatVe}
+                                            </p>
+                                            {!selectedTicket.status && (
+                                                <p style={{ color: '#f7b500', fontSize: 13, margin: 0 }}>
+                                                    Xuất trình mã này tại quầy để nhận vé
+                                                </p>
+                                            )}
+                                            {selectedTicket.status && (
+                                                <p style={{ color: '#68d391', fontSize: 13, margin: 0 }}>
+                                                    ✓ Vé đã được xác nhận
+                                                </p>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Footer */}
+                                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, padding: '0 20px 20px' }}>
+                                    {!selectedTicket.status && (
+                                        <button
+                                            className="btn btn-danger btn-sm"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleDeleteTicket(selectedTicket.maGhe, selectedTicket.taiKhoanNguoiDat);
+                                                setSelectedTicket(null);
+                                            }}
+                                        >
+                                            Hủy vé
+                                        </button>
+                                    )}
+                                    <button className="btn btn-secondary btn-sm" onClick={() => setSelectedTicket(null)}>Đóng</button>
+                                </div>
+                            </div>
+                        )}
+                    </Dialog>
                 </div>
             </div>
         </div>

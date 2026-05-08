@@ -557,7 +557,7 @@ export default function MoviesManagement() {
       };
       
     return (
-        <div style={{ height: "100vh", paddingBottom: "400px", width: "100%" }}>
+        <div style={{ height: "calc(100vh - 64px)", paddingBottom: "48px", width: "100%" }}>
             <div className={classes.control}>
                 <div className="">
                     <div className={``}>

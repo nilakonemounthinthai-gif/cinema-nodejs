@@ -9,24 +9,32 @@ import { createMuiTheme } from "@material-ui/core";
 const useStyles = makeStyles((theme) => {
     return {
         control: {
-            margin: "11px 0",
+            display: 'flex',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: 12,
+            padding: '12px 0',
+            marginBottom: 8,
         },
         addMovie: {
-            fontSize: "16px",
-            borderRadius: "4px",
-            background: "0 0",
-            padding: "5px 15px",
-            transition: "all .2s",
-            marginTop: "25px",
-            width: '10%',
-            marginBottom: "20px",
+            fontSize: "14px",
+            borderRadius: "6px",
+            padding: "7px 18px",
+            transition: "background-color .2s",
+            width: 'auto',
+            minWidth: 130,
             backgroundColor: "rgb(238, 130, 59)",
             border: "none",
             color: "#fff",
             fontWeight: '600',
+            cursor: 'pointer',
             "&:hover": {
-                backgroundColor: "#b42a14",
-            }
+                backgroundColor: "#c0601a",
+            },
+            "&:disabled": {
+                backgroundColor: "#cccccc",
+                cursor: "not-allowed",
+            },
         },
         itemCtro: {
             paddingRight: 16,
@@ -37,24 +45,25 @@ const useStyles = makeStyles((theme) => {
             },
         },
         search: {
-            verticalAlign: "bottom",
             position: "relative",
-            borderRadius: theme.shape.borderRadius,
-            backgroundColor: fade(theme.palette.info.light, 0.15),
+            borderRadius: 6,
+            backgroundColor: '#ffffff',
+            border: '1px solid #dfe1e6',
             "&:hover": {
-                backgroundColor: fade(theme.palette.info.light, 0.25),
+                borderColor: 'rgb(238, 130, 59)',
             },
-            [theme.breakpoints.down("md")]: {
-                marginTop: 11,
-            },
+            minWidth: 220,
+            maxWidth: 360,
         },
         searchIcon: {
-            padding: theme.spacing(0, 2),
+            padding: theme.spacing(0, 1.5),
             height: "100%",
             position: "absolute",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
+            color: '#6b778c',
+            pointerEvents: 'none',
         },
         inputRoot: {
             color: "inherit",
@@ -63,10 +72,10 @@ const useStyles = makeStyles((theme) => {
             display: "flex",
         },
         inputInput: {
-            padding: "8.5px 8.5px 8.5px 0px",
-            paddingLeft: `calc(1em + ${theme.spacing(4)}px)`,
-            transition: theme.transitions.create("width"),
+            padding: "8px 8px 8px 0",
+            paddingLeft: `calc(1em + ${theme.spacing(3)}px)`,
             width: "100%",
+            fontSize: 14,
         },
         button: {
             margin: theme.spacing(1),
@@ -149,12 +158,14 @@ const styles = (theme) => ({
     root: {
         margin: 0,
         padding: theme.spacing(2),
+        backgroundColor: '#001529',
+        color: '#ffffff',
     },
     closeButton: {
         position: "absolute",
         right: theme.spacing(1),
         top: theme.spacing(1),
-        color: theme.palette.grey[500],
+        color: '#ffffff',
     },
 });
 

@@ -1,8 +1,24 @@
 import {
-  BOOK_TICKET_REQUEST, BOOK_TICKET_SUCCESS, BOOK_TICKET_FAIL, GET_LISTSEAT_REQUEST,
-  GET_LISTSEAT_SUCCESS, GET_LISTSEAT_FAIL, CHANGE_LISTSEAT, RESET_DATA_BookTicket, SET_DATA_PAYMENT,
-  SET_READY_PAYMENT, TIMEOUT, SET_ISMOBILE, SET_STEP, INIT_DATA, RESET_ALERT_OVER10, SET_ALERT_OVER10,
-  CREATE_SHOWTIME_REQUEST, CREATE_SHOWTIME_SUCCESS, CREATE_SHOWTIME_FAIL,
+  BOOK_TICKET_REQUEST,
+  BOOK_TICKET_SUCCESS,
+  BOOK_TICKET_FAIL,
+  BOOK_TICKET_RESET_SUCCESS,
+  GET_LISTSEAT_REQUEST,
+  GET_LISTSEAT_SUCCESS,
+  GET_LISTSEAT_FAIL,
+  CHANGE_LISTSEAT,
+  RESET_DATA_BookTicket,
+  SET_DATA_PAYMENT,
+  SET_READY_PAYMENT,
+  TIMEOUT,
+  SET_ISMOBILE,
+  SET_STEP,
+  INIT_DATA,
+  RESET_ALERT_OVER10,
+  SET_ALERT_OVER10,
+  CREATE_SHOWTIME_REQUEST,
+  CREATE_SHOWTIME_SUCCESS,
+  CREATE_SHOWTIME_FAIL,
   RESET_CREATE_SHOWTIME,
 } from './constants/BookTicket';
 
@@ -31,15 +47,14 @@ const initialState = {
   // payment
   email: '',
   phone: '',
-  paymentMethod: '',
+  paymentMethod: 'VNPAY',
   isReadyPayment: false,
   activeStep: 0,
 
   loadingBookTicketTicket: false,
-  successBookTicketTicketMessage: null,
-  errorBookTicketMessage: null,
-
-  loadingCreateShowtime: false,
+    successBookTicketTicketMessage: null,
+    errorBookTicketMessage: null,
+    maDatVe: null,
   successCreateShowtime: null,
   errorCreateShowtime: null,
 }
@@ -95,7 +110,7 @@ const BookTicketReducer = (state = initialState, action) => {
       return {
         ...state,
         danhSachPhongVe: {},
-        paymentMethod: '',
+        paymentMethod: 'VNPAY',
         isReadyPayment: false,
         isSelectedSeat: false,
         listSeatSelected: [],
@@ -104,6 +119,7 @@ const BookTicketReducer = (state = initialState, action) => {
         danhSachVe: [],
         successBookTicketTicketMessage: null,
         errorBookTicketMessage: null,
+        maDatVe: null,
         refreshKey: Date.now(),
         amount: 0,
         alertOver10: false,
@@ -151,11 +167,14 @@ const BookTicketReducer = (state = initialState, action) => {
       }
     }
     case BOOK_TICKET_SUCCESS: {
+      const _d = action.payload.data;
       return {
         ...state,
-        successBookTicketTicketMessage: action.payload.data,
+        successBookTicketTicketMessage: (_d && typeof _d === 'object') ? _d.message : _d,
+        maDatVe: (_d && typeof _d === 'object') ? _d.maDatVe : null,
         loadingBookTicketTicket: false,
         activeStep: 2,
+        bookingSuccess: true,
       }
     }
     case BOOK_TICKET_FAIL: {
@@ -164,6 +183,12 @@ const BookTicketReducer = (state = initialState, action) => {
         errorBookTicketMessage: action.payload.error,
         loadingBookTicketTicket: false,
         activeStep: 2,
+      }
+    }
+    case BOOK_TICKET_RESET_SUCCESS: {
+      return {
+        ...state,
+        bookingSuccess: false,
       }
     }
 

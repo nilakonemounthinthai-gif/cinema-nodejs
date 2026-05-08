@@ -153,9 +153,15 @@ CREATE TABLE IF NOT EXISTS `datve` (
   `tenDayDu` VARCHAR(20),
   `isConfirm` BIT(1) NOT NULL DEFAULT b'0',
   `maRap` INT,
+  `maDatVe` VARCHAR(30) NULL,
   PRIMARY KEY (`maGhe`),
   FOREIGN KEY (`maLichChieu`) REFERENCES `lichchieuinsert`(`maLichChieu`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- =========================================================
+-- DB MIGRATION (run once on existing databases):
+-- ALTER TABLE datve ADD COLUMN IF NOT EXISTS maDatVe VARCHAR(30) NULL;
+-- =========================================================
 
 -- =========================================================
 -- TABLE: thongke (Revenue statistics)
@@ -407,3 +413,16 @@ INSERT INTO `thongke` (`tenPhim`, `ngayMuaVe`, `amount`) VALUES
   ('Avatar 3: Fire and Ash','2026-04-10 16:00:00', 150000),
   ('Fast & Furious 12',  '2026-04-15 19:00:00', 75000),
   ('The Conjuring 5',    '2026-04-20 21:00:00', 75000);
+
+
+
+-- SET SQL_SAFE_UPDATES = 0;
+
+-- UPDATE phiminsert 
+-- SET ngayKhoiChieu = '2026-05-08 00:00:00' 
+-- WHERE ngayKhoiChieu IS NULL 
+-- OR ngayKhoiChieu = '0000-00-00 00:00:00';
+
+-- SET SQL_SAFE_UPDATES = 1;
+
+-- ALTER TABLE datve ADD COLUMN maDatVe VARCHAR(30) NULL;

@@ -44,7 +44,7 @@ export const deleteUser = (taiKhoanUser) => {
                     payload: { data: result.data }
                 })
 
-                window.location.reload();
+                dispatch(getUsersList());
             }
             )
             .catch(
