@@ -102,12 +102,21 @@ const layThongTinLichChieuHeThongRap = (req, res) => {
                                     [result0.hid, result0.cid],
                                     async (error, results1) => {
                                         if (error) return resolve(res.status(500).send(error.message));
-                                        for (const result1 of results1) {
+                                        // Deduplicate by maPhim: outer JOIN returns N rows per movie (N = số suất chiếu),
+                                        // chỉ lấy 1 row đại diện cho mỗi phim để tránh push phim nhiều lần vào danhSachPhim.
+                                        const seenPhim = new Set();
+                                        const uniqueResults1 = results1.filter(r => {
+                                            if (seenPhim.has(r.maPhim)) return false;
+                                            seenPhim.add(r.maPhim);
+                                            return true;
+                                        });
+                                        for (const result1 of uniqueResults1) {
                                             let lstLichChieuTheoPhim = [];
                                             lstLichChieuTheoPhim = await new Promise((resolve) => {
+                                                // Filter by cả maPhim AND cumRap hiện tại để không lấy suất chiếu từ cụm rạp khác
                                                 db.query(
-                                                    'SELECT * FROM lichchieuinsert JOIN phiminsertvalichchieuinsert ON lichchieuinsert.maLichChieu = phiminsertvalichchieuinsert.lichchieuinsert JOIN phiminsert ON phiminsert.maPhim = phiminsertvalichchieuinsert.phiminsert WHERE phiminsertvalichchieuinsert.phiminsert = ?',
-                                                    [result1.maPhim],
+                                                    'SELECT lichchieuinsert.maLichChieu, lichchieuinsert.maRap, lichchieuinsert.tenRap, lichchieuinsert.ngayChieuGioChieu, lichchieuinsert.giaVe FROM lichchieuinsert JOIN phiminsertvalichchieuinsert ON lichchieuinsert.maLichChieu = phiminsertvalichchieuinsert.lichchieuinsert JOIN cumrapvalichchieuinsert ON lichchieuinsert.maLichChieu = cumrapvalichchieuinsert.lichchieuinsert WHERE phiminsertvalichchieuinsert.phiminsert = ? AND cumrapvalichchieuinsert.cumrap = ?',
+                                                    [result1.maPhim, result0.cid],
                                                     async (error, results2) => {
                                                         if (error) return resolve(res.status(500).send(error.message));
                                                         for (const result2 of results2) {
@@ -129,7 +138,6 @@ const layThongTinLichChieuHeThongRap = (req, res) => {
                                                 tenPhim: result1.tenPhim,
                                                 hinhAnh: result1.hinhAnh ? result1.hinhAnh.toString() : '',
                                             };
-                                            console.log('PHIM', phim);
                                             danhSachPhim.push(phim);
                                         }
                                         resolve(danhSachPhim);

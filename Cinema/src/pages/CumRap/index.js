@@ -4,7 +4,29 @@ import { useHistory } from "react-router-dom";
 import { getTheaters } from "../../reducers/actions/Theater";
 import { localLogoBySystem, allCumRapImg } from "../../constants/theaterData";
 import LstNgayChieu from "../Homepage/Theaters/LstPhim/LstNgayChieu";
+import formatDate from "../../utilities/formatDate";
+import { getImageUrl } from "../../utilities/imageUrl";
 import "./style.css";
+
+// Lấy ngày hôm nay dạng YYYY-MM-DD
+const getTodayStr = () => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+};
+
+// Tạo mảng 7 ngày cố định bắt đầu từ hôm nay
+const SEVEN_DAYS = (() => {
+    const days = [];
+    for (let i = 0; i < 7; i++) {
+        const d = new Date();
+        d.setDate(d.getDate() + i);
+        const yyyy = d.getFullYear();
+        const mm = String(d.getMonth() + 1).padStart(2, "0");
+        const dd = String(d.getDate()).padStart(2, "0");
+        days.push(`${yyyy}-${mm}-${dd}`);
+    }
+    return days;
+})();
 
 export default function CumRap() {
     const dispatch = useDispatch();
@@ -14,6 +36,8 @@ export default function CumRap() {
     );
     const [activeSystem, setActiveSystem] = useState(0);
     const [activeCumRap, setActiveCumRap] = useState(null);
+    // Mặc định là hôm nay, không reset khi đổi rạp/hệ thống
+    const [selectedDate, setSelectedDate] = useState(getTodayStr);
 
     useEffect(() => {
         if (!theaterList.length) {
@@ -21,7 +45,7 @@ export default function CumRap() {
         }
     }, []);
 
-    // Reset cụm rạp được chọn khi đổi hệ thống rạp
+    // Reset cụm rạp được chọn khi đổi hệ thống rạp (không reset selectedDate)
     useEffect(() => {
         setActiveCumRap(null);
     }, [activeSystem]);
@@ -47,6 +71,18 @@ export default function CumRap() {
     const lstCumRap = currentSystem?.lstCumRap || [];
     const selectedCumRap =
         activeCumRap !== null ? lstCumRap[activeCumRap] : null;
+
+    // Lọc phim theo ngày đang chọn, chỉ giữ phim có ít nhất 1 suất chiếu
+    const filteredPhimList = selectedCumRap
+        ? (selectedCumRap.danhSachPhim || [])
+              .map((phim) => ({
+                  ...phim,
+                  lstLichChieuTheoPhim: (phim.lstLichChieuTheoPhim || []).filter(
+                      (item) => item.ngayChieuGioChieu.slice(0, 10) === selectedDate
+                  ),
+              }))
+              .filter((phim) => phim.lstLichChieuTheoPhim.length > 0)
+        : [];
 
     return (
         <div className="cr-page">
@@ -123,33 +159,66 @@ export default function CumRap() {
                         <>
                             <h2 className="cr-section-title">{selectedCumRap.tenCumRap}</h2>
                             <p className="cr-right-addr">{selectedCumRap.diaChi}</p>
+
+                            {/* DATE SELECTOR BAR — 7 ngày cố định từ hôm nay */}
+                            <div className="cr-date-bar">
+                                {SEVEN_DAYS.map((date) => {
+                                    const fmt = formatDate(date);
+                                    const parts = date.split("-");
+                                    const displayDate = `${parts[2]}/${parts[1]}`;
+                                    return (
+                                        <button
+                                            key={date}
+                                            className={`cr-date-tab${selectedDate === date ? " cr-date-tab--active" : ""}`}
+                                            onClick={() => setSelectedDate(date)}
+                                        >
+                                            <span className="cr-date-tab__day">{fmt.dayToday}</span>
+                                            <span className="cr-date-tab__date">{displayDate}</span>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+
+                            {/* MOVIE LIST — đã lọc theo selectedDate */}
                             <div className="cr-phim-list">
-                                {selectedCumRap.danhSachPhim?.length === 0 && (
-                                    <p className="cr-empty">Không có phim đang chiếu tại cụm rạp này.</p>
-                                )}
-                                {selectedCumRap.danhSachPhim?.map((phim) => (
-                                    <div
-                                        key={phim.maPhim}
-                                        className="cr-phim-card"
-                                        onClick={() => history.push(`/detail/${phim.maPhim}`)}
-                                    >
-                                        <img
-                                            src={phim.hinhAnh || "/img/unknowUser.png"}
-                                            alt={phim.tenPhim}
-                                            className="cr-phim-img"
-                                            onError={(e) => {
-                                                e.target.onerror = null;
-                                                e.target.src = "/img/unknowUser.png";
-                                            }}
-                                        />
-                                        <div className="cr-phim-info">
-                                            <p className="cr-phim-name">{phim.tenPhim}</p>
-                                            <div className="cr-phim-schedule" onClick={(e) => e.stopPropagation()}>
-                                                <LstNgayChieu lstLichChieuTheoPhim={phim.lstLichChieuTheoPhim || []} />
+                                {filteredPhimList.length === 0 ? (
+                                    <div className="cr-no-showtime">
+                                        <div className="cr-no-showtime__icon">🎭</div>
+                                        <p className="cr-no-showtime__text">
+                                            Không có suất chiếu trong ngày này
+                                        </p>
+                                        <p className="cr-no-showtime__sub">Vui lòng chọn ngày khác</p>
+                                    </div>
+                                ) : (
+                                    filteredPhimList.map((phim) => (
+                                        <div
+                                            key={phim.maPhim}
+                                            className="cr-phim-card"
+                                            onClick={() => history.push(`/detail/${phim.maPhim}`)}
+                                        >
+                                            <img
+                                                src={getImageUrl(phim.hinhAnh)}
+                                                alt={phim.tenPhim}
+                                                className="cr-phim-img"
+                                                onError={(e) => {
+                                                    e.target.onerror = null;
+                                                    e.target.src = "/img/unknowUser.png";
+                                                }}
+                                            />
+                                            <div className="cr-phim-info">
+                                                <p className="cr-phim-name">{phim.tenPhim}</p>
+                                                <div
+                                                    className="cr-phim-schedule"
+                                                    onClick={(e) => e.stopPropagation()}
+                                                >
+                                                    <LstNgayChieu
+                                                        lstLichChieuTheoPhim={phim.lstLichChieuTheoPhim}
+                                                    />
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    ))
+                                )}
                             </div>
                         </>
                     ) : (

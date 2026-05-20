@@ -832,7 +832,7 @@ export default function MoviesManagement() {
                                 }}
                                 onClick={handleTaoLichChieu}
                             >
-                                Tạo Lịch Chiếu
+                                Xác Nhận Lịch Chiếu
                             </Button>
                         </div>
                     )}
