@@ -281,6 +281,89 @@
   font-size: 12px !important;
 }
 
+/* --- DATE SELECTOR BAR ------------------------------------ */
+.cr-date-bar {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 0 0 16px;
+  margin-bottom: 20px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.cr-date-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.cr-date-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 10px 16px;
+  min-width: 76px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1.5px solid transparent;
+  border-radius: 10px;
+  cursor: pointer;
+  color: #888;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.cr-date-tab:hover {
+  background: rgba(255, 255, 255, 0.09);
+  color: #ddd;
+  border-color: rgba(255, 255, 255, 0.15);
+}
+.cr-date-tab--active {
+  background: rgba(250, 82, 56, 0.14);
+  border-color: #fa5238;
+  color: #fff;
+}
+
+.cr-date-tab__day {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: capitalize;
+  color: inherit;
+}
+.cr-date-tab--active .cr-date-tab__day {
+  color: #fa5238;
+}
+.cr-date-tab__date {
+  font-size: 15px;
+  font-weight: 700;
+  color: inherit;
+}
+
+/* --- NO SHOWTIME EMPTY STATE ------------------------------ */
+.cr-no-showtime {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64px 20px;
+  gap: 12px;
+}
+.cr-no-showtime__icon {
+  font-size: 54px;
+  opacity: 0.55;
+  line-height: 1;
+}
+.cr-no-showtime__text {
+  font-size: 16px;
+  color: #777;
+  font-weight: 500;
+  margin: 0;
+}
+.cr-no-showtime__sub {
+  font-size: 13px;
+  color: #555;
+  margin: 0;
+}
+
 /* ============================================================
    RESPONSIVE
    ============================================================ */
@@ -316,5 +399,15 @@
   .cr-right {
     padding: 16px;
     max-height: unset;
+  }
+  .cr-date-tab {
+    min-width: 62px;
+    padding: 8px 10px;
+  }
+  .cr-date-tab__day {
+    font-size: 10px;
+  }
+  .cr-date-tab__date {
+    font-size: 13px;
   }
 }
