@@ -115,7 +115,7 @@ const layThongTinLichChieuHeThongRap = (req, res) => {
                                             lstLichChieuTheoPhim = await new Promise((resolve) => {
                                                 // Filter by cả maPhim AND cumRap hiện tại để không lấy suất chiếu từ cụm rạp khác
                                                 db.query(
-                                                    'SELECT lichchieuinsert.maLichChieu, lichchieuinsert.maRap, lichchieuinsert.tenRap, lichchieuinsert.ngayChieuGioChieu, lichchieuinsert.giaVe FROM lichchieuinsert JOIN phiminsertvalichchieuinsert ON lichchieuinsert.maLichChieu = phiminsertvalichchieuinsert.lichchieuinsert JOIN cumrapvalichchieuinsert ON lichchieuinsert.maLichChieu = cumrapvalichchieuinsert.lichchieuinsert WHERE phiminsertvalichchieuinsert.phiminsert = ? AND cumrapvalichchieuinsert.cumrap = ?',
+                                                    'SELECT lichchieuinsert.maLichChieu, lichchieuinsert.maRap, lichchieuinsert.tenRap, lichchieuinsert.ngayChieuGioChieu, lichchieuinsert.giaVe, lichchieuinsert.thoiLuong FROM lichchieuinsert JOIN phiminsertvalichchieuinsert ON lichchieuinsert.maLichChieu = phiminsertvalichchieuinsert.lichchieuinsert JOIN cumrapvalichchieuinsert ON lichchieuinsert.maLichChieu = cumrapvalichchieuinsert.lichchieuinsert WHERE phiminsertvalichchieuinsert.phiminsert = ? AND cumrapvalichchieuinsert.cumrap = ?',
                                                     [result1.maPhim, result0.cid],
                                                     async (error, results2) => {
                                                         if (error) return resolve(res.status(500).send(error.message));
@@ -126,6 +126,7 @@ const layThongTinLichChieuHeThongRap = (req, res) => {
                                                                 tenRap: result2.tenRap,
                                                                 ngayChieuGioChieu: result2.ngayChieuGioChieu,
                                                                 giaVe: result2.giaVe,
+                                                                thoiLuong: result2.thoiLuong,
                                                             });
                                                         }
                                                         resolve(lstLichChieuTheoPhim);
