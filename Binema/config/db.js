@@ -10,6 +10,7 @@ const db = mysql.createPool({
     password: 'hqhhg',
     database: 'nodejsapi',
     charset: 'utf8mb4',
+    timezone: 'UTC',
     connectionLimit: 10,
     multipleStatements: false,
 });
