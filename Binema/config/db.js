@@ -7,7 +7,7 @@ const mysql = require('mysql');
 const db = mysql.createPool({
     host: 'localhost',
     user: 'root',
-    password: 'hqhhg',
+    password: '123456',
     database: 'nodejsapi',
     charset: 'utf8mb4',
     timezone: 'UTC',
