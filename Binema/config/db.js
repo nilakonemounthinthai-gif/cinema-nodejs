@@ -1,4 +1,4 @@
-const mysql = require('mysql');
+const mysql = require('mysql2');
 
 // Use a connection POOL instead of a single createConnection.
 // With createConnection, if MySQL closes the idle connection (wait_timeout),
