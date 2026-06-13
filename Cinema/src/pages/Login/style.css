@@ -2,6 +2,8 @@
 .ftco-section{
     background-image: url("./bgAuth.jpg");
     min-height: 100vh;
+    background-size: cover;
+    background-position: center;
 }
 .ftco-section img{
     width: 80%;
@@ -13,9 +15,28 @@
     justify-content: center;
 }
 .wrap {
-margin-top: 300px;
+    margin-top: 200px;
 }
 .dk{
     text-align: end;
     margin-top: 5px;
+}
+
+@media screen and (max-width: 768px) {
+    .wrap {
+        margin-top: 50px;
+        flex-direction: column;
+    }
+    .ftco-section img {
+        width: 100%;
+        max-width: 300px;
+        margin: 0 auto 20px auto;
+        display: block;
+    }
+    .login-wrap {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 10px;
+        padding: 30px 20px !important;
+        margin: 0 15px;
+    }
 }

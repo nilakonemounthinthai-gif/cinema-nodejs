@@ -8,13 +8,13 @@
     z-index: 9999;
     color: aliceblue;
     padding: 10px 100px;
-    
 }
 .btn-up{
     border: 1px dotted aliceblue;
     margin: 0 5px;
     border-radius: 5px;
     cursor: pointer;
+    white-space: nowrap;
 }
 .menu-item{
     cursor: pointer;
@@ -22,6 +22,7 @@
 }
 .menu-item span{
     padding: 0 10px;
+    white-space: nowrap;
 }
 .flexAl{
     display: flex;
@@ -29,4 +30,31 @@
 }
 .flexAl li{
     padding: 0 10px;
+}
+
+@media screen and (max-width: 768px) {
+    .header {
+        padding: 10px;
+        flex-direction: column;
+    }
+    .row {
+        flex-direction: column;
+        display: flex;
+        align-items: center;
+        width: 100%;
+    }
+    .menu-item {
+        margin: 10px 0;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    .menu-item span {
+        margin-bottom: 5px;
+    }
+    .flexAl {
+        margin-top: 5px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
 }
