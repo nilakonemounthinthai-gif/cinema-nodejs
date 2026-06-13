@@ -1,4 +1,28 @@
 const db = require('../config/db');
+const fetch = require('node-fetch');
+
+const uploadToImgBB = async (fileBuffer) => {
+    try {
+        // You should set IMGBB_API_KEY in your .env or Render dashboard
+        const apiKey = process.env.IMGBB_API_KEY || '67c7e0f81d1ef8f4204c35e7dff22b8d'; 
+        const base64Image = fileBuffer.toString('base64');
+        const params = new URLSearchParams();
+        params.append('key', apiKey);
+        params.append('image', base64Image);
+
+        const response = await fetch('https://api.imgbb.com/1/upload', {
+            method: 'POST',
+            body: params,
+        });
+        const data = await response.json();
+        if (data && data.data && data.data.url) {
+            return data.data.url;
+        }
+    } catch (error) {
+        console.error('[ImgBB Upload Error]', error);
+    }
+    return null;
+};
 
 // Convert an ISO 8601 string (e.g. "2026-05-08T07:00:00.000Z") to MySQL DATETIME
 // format "YYYY-MM-DD HH:MM:SS". MySQL DATETIME does not support the 'Z' timezone
@@ -149,10 +173,12 @@ const layThongTinPhim = (req, res) => {
     );
 };
 
-const themPhim = (req, res) => {
-    const hinhAnh = req.file
-        ? `/images/${req.file.filename}`
-        : (req.body.hinhAnh || '');
+const themPhim = async (req, res) => {
+    let hinhAnh = req.body.hinhAnh || '';
+    if (req.file) {
+        const uploadedUrl = await uploadToImgBB(req.file.buffer);
+        if (uploadedUrl) hinhAnh = uploadedUrl;
+    }
     console.log('[ThemPhim] START tenPhim=%s hinhAnh=%s', req.body.tenPhim, hinhAnh.slice(0, 60));
     db.query('INSERT INTO phiminsert SET ?', {
         tenPhim: req.body.tenPhim,
@@ -178,10 +204,12 @@ const themPhim = (req, res) => {
     });
 };
 
-const capNhatPhim = (req, res) => {
-    const hinhAnh = req.file
-        ? `/images/${req.file.filename}`
-        : (req.body.hinhAnh || '');
+const capNhatPhim = async (req, res) => {
+    let hinhAnh = req.body.hinhAnh || '';
+    if (req.file) {
+        const uploadedUrl = await uploadToImgBB(req.file.buffer);
+        if (uploadedUrl) hinhAnh = uploadedUrl;
+    }
     console.log('[CapNhatPhim] START maPhim=%s hinhAnh=%s', req.body.maPhim, hinhAnh.slice(0, 60));
     db.query('UPDATE phiminsert SET ? WHERE maPhim = ?', [{
         tenPhim: req.body.tenPhim,
