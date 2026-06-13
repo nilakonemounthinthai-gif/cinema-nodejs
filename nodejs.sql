@@ -3,8 +3,7 @@
 -- Database: nodejsapi
 -- =========================================================
 
-CREATE DATABASE IF NOT EXISTS nodejsapi CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE nodejsapi;
+-- Removed CREATE DATABASE and USE nodejsapi to support Aiven defaultdb
 
 -- =========================================================
 -- TABLE: hethongrap (Theater systems)
