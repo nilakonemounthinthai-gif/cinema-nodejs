@@ -184,4 +184,14 @@
   font-weight: 600;
   opacity: 0;
   transition: all 0.2s;
-}/*# sourceMappingURL=movie.css.map */
+}
+
+@media (max-width: 960px) {
+  .film .film__content .film__button a {
+    opacity: 1;
+  }
+  .film__button-link {
+    opacity: 1;
+  }
+}
+/*# sourceMappingURL=movie.css.map */
