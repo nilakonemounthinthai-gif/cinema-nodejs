@@ -58,7 +58,7 @@ export default function Modal() {
 
   return (
     <Dialog
-      open={timeOut || (isBookTicket && !isMobile) || alertOver10}
+      open={timeOut || isBookTicket || alertOver10}
       classes={{ paper: classes.modal }}
       maxWidth="md"
     >
@@ -94,8 +94,7 @@ export default function Modal() {
             </Button>
           </div>
         )}
-      {!isMobile &&
-        isBookTicket && ( 
+      {isBookTicket && ( 
           <>
             <ResultBookTicket />
             <div className={classes.spaceEvenly}>
