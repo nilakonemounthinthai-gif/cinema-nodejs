@@ -189,9 +189,26 @@
 @media (max-width: 960px) {
   .film .film__content .film__button a {
     opacity: 1;
+    font-size: 13px;
+    padding: 6px 2px;
+    top: 0;
+    border-radius: 4px;
+    line-height: 1.2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 32px;
   }
   .film__button-link {
     opacity: 1;
+    font-size: 13px;
+    padding: 6px 2px;
+    top: 0;
+    border-radius: 4px;
+    line-height: 1.2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 32px;
   }
 }
-/*# sourceMappingURL=movie.css.map */
