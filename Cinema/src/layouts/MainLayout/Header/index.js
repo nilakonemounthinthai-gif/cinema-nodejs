@@ -8,6 +8,18 @@ import { LOGOUT } from "../../../reducers/constants/Auth";
 import { LOADING_BACKTO_HOME } from "../../../reducers/constants/Lazy";
 import { getMovieList } from "../../../reducers/actions/Movie";
 import { getTheaters } from "../../../reducers/actions/Theater";
+
+import Drawer from "@material-ui/core/Drawer";
+import IconButton from "@material-ui/core/IconButton";
+import MenuIcon from "@material-ui/icons/Menu";
+import List from "@material-ui/core/List";
+import ListItem from "@material-ui/core/ListItem";
+import ListItemText from "@material-ui/core/ListItemText";
+import ListItemIcon from "@material-ui/core/ListItemIcon";
+import AccountCircleIcon from "@material-ui/icons/AccountCircle";
+import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
+import Avatar from "@material-ui/core/Avatar";
+
 import "./style.css"
 const headMenu = [
     { nameLink: "Lịch chiếu", type: "scroll", id: "lichchieu" },
@@ -102,101 +114,103 @@ export default function Header() {
 
     return (
         <div className="header">
-            <div className="" onClick={handleClickLogo}>
+            {/* Mobile Menu Icon */}
+            {!isDesktop && (
+                <div className="mobile-menu-icon">
+                    <IconButton color="inherit" onClick={handleDrawerOpen}>
+                        <MenuIcon fontSize="large" />
+                    </IconButton>
+                </div>
+            )}
+
+            <div className="logo-container" onClick={handleClickLogo} style={{ cursor: "pointer", display: 'flex', alignItems: 'center' }}>
                 <img src="https://t3.ftcdn.net/jpg/04/66/39/50/360_F_466395040_mj2YjwJe0qLlRXQk51kg0q8Jw9AwJp5r.jpg" alt="logo" style={{ height: 50 }} />
             </div>
-            <div className="row">
-                <div
-                    container
-                    direction="row"
-                    justify="space-between"
-                    alignItems="center"
-                    className="menu-item"
-                >
-                    {headMenu.map((link) => (
-                        <span
-                            key={link.nameLink}
-                            className=""
-                            onClick={() => handleClickLink(link)}
-                        >
-                            {link.nameLink}
-                        </span>
-                    ))}
-                </div>
-                <div className="">
-                    {currentUser ? (
-                        <ul className="flexAl">
-                            <li onClick={handleUser} className="btn-up">
-                                <i className="fa fa-user"></i>Tài khoản
-                            </li>
-                            <li className="btn-up" onClick={handleLogout}>Đăng xuất</li>
-                        </ul>
-                    ) : (
-                        <>
+
+            {/* Desktop Menu */}
+            {isDesktop ? (
+                <div className="row desktop-menu">
+                    <div
+                        className="menu-item"
+                        style={{ display: 'flex', alignItems: 'center' }}
+                    >
+                        {headMenu.map((link) => (
+                            <span
+                                key={link.nameLink}
+                                className=""
+                                onClick={() => handleClickLink(link)}
+                            >
+                                {link.nameLink}
+                            </span>
+                        ))}
+                    </div>
+                    <div className="">
+                        {currentUser ? (
                             <ul className="flexAl">
-                                <li className="btn-up" onClick={handleLogin}>Đăng Nhập</li>
-                                <li className="btn-up" onClick={handleRegister}>Đăng Ký</li>
+                                <li onClick={handleUser} className="btn-up">
+                                    <i className="fa fa-user"></i> Tài khoản
+                                </li>
+                                <li className="btn-up" onClick={handleLogout}>Đăng xuất</li>
                             </ul>
-                        </>
-                    )}
+                        ) : (
+                            <>
+                                <ul className="flexAl">
+                                    <li className="btn-up" onClick={handleLogin}>Đăng Nhập</li>
+                                    <li className="btn-up" onClick={handleRegister}>Đăng Ký</li>
+                                </ul>
+                            </>
+                        )}
+                    </div>
                 </div>
-            </div>
-            {/* user account */}
+            ) : (
+                <div style={{ width: 48 }}></div> /* placeholder to center the logo */
+            )}
 
-
-            {/* menuIcon  */}
-            {/* <div className="">
-        <button
-          color="inherit"
-          edge="end"
-          onClick={handleDrawerOpen}
-    
-        >
-          <MenuIcon />
-        </button>
-      </div> */}
-
-            {/* content open menu*/}
-            {/* <Drawer
-        className=""
-        anchor="right"
-        onClose={handleDrawerClose}
-        open={openDrawer}
-
-        transitionDuration={300}
-      > */}
-            {/* <div className="">
-          {currentUser ?
-            <ListItem button classes={{ root: clsx(classes.itemAuth, classes.divide, classes.hover) }} onClick={handleUser}>
-              <ListItemIcon classes={{ root: classes.icon }}>
-                <Avatar alt="avatar" className={classes.avatar} src={FAKE_AVATAR} />
-              </ListItemIcon>
-              <ListItemText className={classes.username} primary={currentUser?.hoTen} />
-            </ListItem>
-            :
-            <ListItem button classes={{ root: classes.listItem }} onClick={handleLogin}>
-              <ListItemIcon classes={{ root: classes.icon }}>
-                <AccountCircleIcon fontSize="large" />
-              </ListItemIcon>
-              <span className={classes.link} style={{ fontWeight: 500 }}>Đăng Nhập</span>
-            </ListItem>
-          }
-          <IconButton classes={{ root: classes.listItem }} onClick={handleDrawerClose}>
-            <ChevronRightIcon />
-          </IconButton>
-        </div>
-        <List>
-          {headMenu.map((link) => (
-            <span key={link.id} className={classes.itemMenu} onClick={() => handleClickLink(link.id)} >{link.nameLink}</span>
-          ))}
-
-          {currentUser ?
-            <span className={classes.itemMenu} onClick={handleLogout}>Đăng Xuất</span>
-            :
-            <span className={classes.itemMenu} onClick={handleRegister}>Đăng Ký</span>
-          }
-        </List>
-      </Drawer> */}
+            {/* Mobile Drawer (Left) */}
+            <Drawer
+                anchor="left"
+                open={openDrawer}
+                onClose={handleDrawerClose}
+                classes={{ paper: 'mobile-drawer-paper' }}
+            >
+                <div className="drawer-header">
+                    {currentUser ? (
+                        <ListItem button onClick={handleUser}>
+                            <ListItemIcon>
+                                <Avatar alt="avatar" src={`https://ui-avatars.com/api/?name=${currentUser?.hoTen}`} />
+                            </ListItemIcon>
+                            <ListItemText primary={currentUser?.hoTen} />
+                        </ListItem>
+                    ) : (
+                        <ListItem button onClick={handleLogin}>
+                            <ListItemIcon>
+                                <AccountCircleIcon fontSize="large" />
+                            </ListItemIcon>
+                            <ListItemText primary="Đăng Nhập" />
+                        </ListItem>
+                    )}
+                    <IconButton onClick={handleDrawerClose} color="inherit">
+                        <ChevronLeftIcon />
+                    </IconButton>
+                </div>
+                
+                <List className="drawer-list">
+                    {headMenu.map((link) => (
+                        <ListItem button key={link.nameLink} onClick={() => handleClickLink(link)}>
+                            <ListItemText primary={link.nameLink} />
+                        </ListItem>
+                    ))}
+                    {currentUser ? (
+                        <ListItem button onClick={handleLogout}>
+                            <ListItemText primary="Đăng Xuất" />
+                        </ListItem>
+                    ) : (
+                        <ListItem button onClick={handleRegister}>
+                            <ListItemText primary="Đăng Ký" />
+                        </ListItem>
+                    )}
+                </List>
+            </Drawer>
         </div>
     );
 }

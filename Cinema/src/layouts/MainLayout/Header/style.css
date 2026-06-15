@@ -1,4 +1,4 @@
-.header{
+.header {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -8,53 +8,82 @@
     z-index: 9999;
     color: aliceblue;
     padding: 10px 100px;
+    box-sizing: border-box;
 }
-.btn-up{
+.btn-up {
     border: 1px dotted aliceblue;
     margin: 0 5px;
     border-radius: 5px;
     cursor: pointer;
     white-space: nowrap;
 }
-.menu-item{
+.menu-item {
     cursor: pointer;
     text-transform: uppercase;
 }
-.menu-item span{
+.menu-item span {
     padding: 0 10px;
     white-space: nowrap;
+    transition: all 0.3s ease;
 }
-.flexAl{
+.menu-item span:hover {
+    color: #f5c518;
+}
+.flexAl {
     display: flex;
     align-items: center;
+    list-style: none;
+    margin: 0;
+    padding: 0;
 }
-.flexAl li{
-    padding: 0 10px;
+.flexAl li {
+    padding: 5px 10px;
+    transition: all 0.3s ease;
+}
+.flexAl li:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+.row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin-left: 30px;
+}
+
+/* Mobile specific styling */
+.mobile-menu-icon {
+    display: none;
+}
+.drawer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+}
+.drawer-list {
+    width: 250px;
+}
+.mobile-drawer-paper {
+    background-color: #091422 !important;
+    color: aliceblue !important;
+}
+.mobile-drawer-paper .MuiListItemIcon-root {
+    color: aliceblue !important;
 }
 
 @media screen and (max-width: 768px) {
     .header {
-        padding: 10px;
-        flex-direction: column;
+        padding: 10px 20px;
     }
-    .row {
-        flex-direction: column;
-        display: flex;
-        align-items: center;
-        width: 100%;
+    .desktop-menu {
+        display: none !important;
     }
-    .menu-item {
-        margin: 10px 0;
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
+    .mobile-menu-icon {
+        display: block;
     }
-    .menu-item span {
-        margin-bottom: 5px;
-    }
-    .flexAl {
-        margin-top: 5px;
-        flex-wrap: wrap;
-        justify-content: center;
+    .logo-container {
+        margin: 0 auto;
     }
 }
